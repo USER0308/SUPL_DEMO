@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:tx="http://www.springframework.org/schema/tx" xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans   
+    http://www.springframework.org/schema/beans/spring-beans-2.5.xsd  
+         http://www.springframework.org/schema/tx   
+    http://www.springframework.org/schema/tx/spring-tx-2.5.xsd  
+         http://www.springframework.org/schema/aop   
+    http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+    
+    <bean id="pool" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+		<property name="corePoolSize" value="500" />
+		<property name="maxPoolSize" value="5000" />
+		<property name="queueCapacity" value="10000" />
+		<property name="keepAliveSeconds" value="60" />
+		<property name="rejectedExecutionHandler">
+			<bean class="java.util.concurrent.ThreadPoolExecutor.CallerRunsPolicy" />
+		</property>
+    </bean>
+    
+	<bean id="channelService" class="org.bcos.channel.client.Service">
+		<property name="orgID" value="BOCHK" />
+		<property name="allChannelConnections">
+			<map>
+				<entry key="BOCHK">
+					<bean class="org.bcos.channel.handler.ChannelConnections">
+                        <property name="connectionsStr">
+							<list>
+								<value>node0@172.21.64.217:35500</value>
+								<!-- <value>node1@172.21.64.215:52300</value> -->
+							</list>
+						</property>
+                    </bean>
+				</entry>
+				<!-- <entry key ="WB">
+					<bean class="org.bcos.channel.handler.ChannelConnections">
+                        <property name="connectionsStr">
+							<list>
+								<value>node0@172.21.64.213:54301</value>
+							</list>
+						</property>
+                    </bean>
+				</entry> -->
+			</map>
+		</property>
+	</bean>
+</beans>

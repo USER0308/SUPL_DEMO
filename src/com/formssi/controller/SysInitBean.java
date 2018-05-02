@@ -1,0 +1,29 @@
+package com.formssi.controller;
+
+import javax.servlet.ServletContext;
+
+import org.springframework.beans.factory.InitializingBean;
+import org.springframework.stereotype.Component;
+import org.springframework.web.context.ServletContextAware;
+
+import com.formssi.service.IOUService;
+/**
+ * 项目启动的时候（登录的时候）初始化IOUService
+ * @author Administrator
+ *
+ */
+@Component
+public class SysInitBean implements InitializingBean, ServletContextAware {
+
+	
+	@Override
+	public void setServletContext(ServletContext arg0) {
+
+	}
+
+	@Override
+	public void afterPropertiesSet() throws Exception {
+		new IOUService().initObj();
+	}
+
+}
