@@ -11,6 +11,8 @@ public class Strategy {
 	private String strategyId;			//策略Id
 	private int rank;					//策略规定的最小可以查看的军衔
 	private List<Integer> department;	//指定可以查看的部门
+	private String depStr;
+	
 	
 	@JSONField(name = "strategyId")
 	public String getStrategyId() {
@@ -31,14 +33,15 @@ public class Strategy {
 		this.rank = rank;
 	}
 	
-	@JSONField(name = "department")
+//	@JSONField(name = "department")
 	public List<Integer> getDepartment() {
 		return department;
 	}
-	@JSONField(name = "department")
+//	@JSONField(name = "department")
 	public void setDepartment(List<Integer> department) {
 		this.department = department;
 	}
+	
 	
 	public static Strategy parse(String json) {
 		Strategy object=JSON.parseObject(json, Strategy.class);
