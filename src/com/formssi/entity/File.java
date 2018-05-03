@@ -4,13 +4,12 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 
-
 public class File {
 	
 	private String fileId;			//	文件ID
 	private String fileAddr;		//	文件地址
 	private String pubKeyToSymkey;	//	对称密钥（加密后）
-	private String strategyId;		//	策略Id
+	private String strategy;		//	策略    x|x|x|  第一个数字是军衔，后面的字段是部门
 	private String department; 		//  上传部门
 	private String userId; 			//  上传人
 	private String uploadTime;		//	上传时间
@@ -42,19 +41,20 @@ public class File {
 		this.pubKeyToSymkey = pubKeyToSymkey;
 	}
 	
-	@JSONField(name = "strategyId")
-	public String getPlotId() {
-		return strategyId;
+	@JSONField(name = "strategy")
+	public String getStrategy() {
+		return strategy;
 	}
-	@JSONField(name = "strategyId")
-	public void setPlotId(String strategyId) {
-		this.strategyId = strategyId;
+	@JSONField(name = "strategy")
+	public void setStrategy(String strategy) {
+		this.strategy = strategy;
 	}
 	
 	@JSONField(name = "department")
 	public String getDepartment() {
 		return department;
 	}
+
 	@JSONField(name = "department")
 	public void setDepartment(String department) {
 		this.department = department;
@@ -89,8 +89,8 @@ public class File {
 	
 	@Override
 	public String toString() {
-		return "File [fileId=" + fileId + ", fileAddr=" + fileAddr + ", pubKeyToSymkey=" + pubKeyToSymkey + ", strategyId="
-				+ strategyId + ", department=" + department + ", userId=" + userId + ", uploadTime=" + uploadTime + "]";
+		return "File [fileId=" + fileId + ", fileAddr=" + fileAddr + ", pubKeyToSymkey=" + pubKeyToSymkey + ", strategy="
+				+ strategy + ", department=" + department + ", userId=" + userId + ", uploadTime=" + uploadTime + "]";
 	}
 
 }
