@@ -1,23 +1,20 @@
 package test;
 
+import java.io.File;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.bouncycastle.crypto.tls.UseSRTPData;
 import org.springframework.beans.factory.annotation.Autowired;
 
 
 public class myTest {
 //	static Logger logger = LoggerFactory.getLogger(query.class);
-	static private final List<String> TRAN_LATESTSTATE_LIST= Arrays.asList("U","C");
+//	static private final List<String> TRAN_LATESTSTATE_LIST= Arrays.asList("U","C");
 
 	
 	
 	public static void main(String[] args) throws Exception{
-		
-		
-		
-		
 		
 		
 		

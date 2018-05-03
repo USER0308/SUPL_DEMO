@@ -29,9 +29,9 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Controller;
 
-import com.formssi.entity.IOU;
-import com.formssi.entity.Organ;
-import com.formssi.entity.Transaction;
+//import com.formssi.entity.IOU;
+//import com.formssi.entity.Organ;
+//import com.formssi.entity.Transaction;
 
 import exception.initConfigException;
 import utils.PropertiesUtil;
@@ -150,84 +150,84 @@ public class IOUService {
 	}
 	///////////////////////////////一下内容为sdk的实际方法需要全部修改成新项目的方法////////////////////////////////////
 	
-	public static int addTransaction(Transaction tran) throws InterruptedException, ExecutionException{
-		
-		if(!TRAN_LATESTSTATE_LIST.contains(tran.getLatestStatus())) {
-			logger.info("the value of Tran Status must be C or U.");
-			return -1;
-		}
-		TransactionReceipt receipt = contractTransaction.addTransaction(new Utf8String(tran.getConID()), new Utf8String (tran.getSaleOrg()), new Utf8String (tran.getBuyOrg()), 
-				new Utf8String (tran.getTransType()), new Int256 (tran.getAmount()), new Utf8String (tran.getConHash()), new Utf8String (tran.getLatestStatus()), new Utf8String (tran.getTransTime()), new Utf8String (tran.getUpdateTime())).get();
-		logger.info("addTransaction receipt transactionHash:{}",receipt.getTransactionHash());
-		//TODO AddTransactionResultEventResponse 事件添加
-//		List<AddTransactionResultEventResponse> responses = contractTransaction.getAddTransactionResultEvents(receipt);
-//		System.out.println(responses.size());
-		List<AddTransactionEventResponse> responses = contractTransaction.getAddTransactionEvents(receipt);
-		System.out.println(responses.size()+"   |   "+responses.get(0)._json.getValue());
-//		logger.info("result responses.get(0)._code.getValue():{}",responses.get(0)._code.getValue());
+//	public static int addTransaction(Transaction tran) throws InterruptedException, ExecutionException{
+//		
+//		if(!TRAN_LATESTSTATE_LIST.contains(tran.getLatestStatus())) {
+//			logger.info("the value of Tran Status must be C or U.");
+//			return -1;
+//		}
+//		TransactionReceipt receipt = contractTransaction.addTransaction(new Utf8String(tran.getConID()), new Utf8String (tran.getSaleOrg()), new Utf8String (tran.getBuyOrg()), 
+//				new Utf8String (tran.getTransType()), new Int256 (tran.getAmount()), new Utf8String (tran.getConHash()), new Utf8String (tran.getLatestStatus()), new Utf8String (tran.getTransTime()), new Utf8String (tran.getUpdateTime())).get();
+//		logger.info("addTransaction receipt transactionHash:{}",receipt.getTransactionHash());
+//		//TODO AddTransactionResultEventResponse 事件添加
+////		List<AddTransactionResultEventResponse> responses = contractTransaction.getAddTransactionResultEvents(receipt);
+////		System.out.println(responses.size());
+//		List<AddTransactionEventResponse> responses = contractTransaction.getAddTransactionEvents(receipt);
+//		System.out.println(responses.size()+"   |   "+responses.get(0)._json.getValue());
+////		logger.info("result responses.get(0)._code.getValue():{}",responses.get(0)._code.getValue());
+////		int result = responses.get(0)._code.getValue().intValue();
+////		return result;
+//		return 1;
+//	}
+//	
+//	
+//	
+//	public static int updateTransStatus(Transaction tran) throws InterruptedException, ExecutionException{
+//		if(!TRAN_LATESTSTATE_LIST.contains(tran.getLatestStatus())) {
+//			logger.info("the value of IOU Status must be C or U.");
+//			return -1;
+//		}
+//		TransactionReceipt receipt = contractTransaction.updateTransStatus(new Utf8String(tran.getConID()), new Utf8String(tran.getLatestStatus())).get();
+//		logger.info("updateTransStatus receipt transactionHash:{}",receipt.getTransactionHash());
+//		List<UpdateTransStatusResultEventResponse> responses = contractTransaction.getUpdateTransStatusResultEvents(receipt);
 //		int result = responses.get(0)._code.getValue().intValue();
 //		return result;
-		return 1;
-	}
-	
-	
-	
-	public static int updateTransStatus(Transaction tran) throws InterruptedException, ExecutionException{
-		if(!TRAN_LATESTSTATE_LIST.contains(tran.getLatestStatus())) {
-			logger.info("the value of IOU Status must be C or U.");
-			return -1;
-		}
-		TransactionReceipt receipt = contractTransaction.updateTransStatus(new Utf8String(tran.getConID()), new Utf8String(tran.getLatestStatus())).get();
-		logger.info("updateTransStatus receipt transactionHash:{}",receipt.getTransactionHash());
-		List<UpdateTransStatusResultEventResponse> responses = contractTransaction.getUpdateTransStatusResultEvents(receipt);
-		int result = responses.get(0)._code.getValue().intValue();
-		return result;
-	}
-	
-	public static String setIouLimit(Organ org) throws InterruptedException, ExecutionException{
-		TransactionReceipt receipt = contractTransaction.setIouLimit(new Utf8String(org.getOrgID()), new Int256(org.getIouLimit())).get();
-		logger.info("setIouLimit receipt transactionHash:{}",receipt.getTransactionHash());
-		List<SetIouLimitEventResponse> responses = contractTransaction.getSetIouLimitEvents(receipt);
-		String result=responses.get(0)._json.toString(); 
-		return result;
-	}
-	
-	public static String initIouLimitData(Organ org) throws InterruptedException, ExecutionException{
-		TransactionReceipt receipt = contractTransaction.initIouLimitData(new Utf8String(org.getOrgID()), new Utf8String(org.getOrgName()),new Int256(org.getIouLimit()), new Utf8String(org.getCreateTime()), new Utf8String(org.getUpdateTime())).get();
-		logger.info("initIouLimitData receipt transactionHash:{}",receipt.getTransactionHash());
-		List<InitIouLimitDataEventResponse> responses = contractTransaction.getInitIouLimitDataEvents(receipt);
-		String result=responses.get(0)._json.toString(); 
-		return result;
-	}
-	
-	public static String queryTransByConId(String conID) throws InterruptedException, ExecutionException{
-		String receipt = contractTransaction.queryTransByConId(new Utf8String(conID)).get().getValue();
-		logger.info("queryTransByConId receipt transactionHash:{}",receipt);
-		return receipt;
-	}
-	
-	public static String getIouLimit(IOU iou) throws InterruptedException, ExecutionException{
-		String receipt = contractTransaction.getIouLimit(new Utf8String(iou.getFromOrg())).get().getValue();
-		logger.info("getIouLimit receipt transactionHash:{}",receipt);
-		return receipt;
-	}
-	
-	public static String getIouList(int pageNo,int pageSize) throws InterruptedException, ExecutionException{
-		String receipt = contractTransaction.getIouList(new Uint256(pageNo),new Uint256(pageSize)).get().getValue();
-		logger.info("getIouList receipt transactionHash:{}",receipt);
-		return receipt;
-	}
-	public static String queryTransList(int pageNo,int pageSize) throws InterruptedException, ExecutionException{
-		String receipt = contractTransaction.queryTransList(new Uint256(pageNo),new Uint256(pageSize)).get().getValue();
-		logger.info("queryTransList receipt transactionHash:{}",receipt);
-		return receipt;
-	}
-	public static String iouRecycle(IOU iou) throws InterruptedException, ExecutionException{
-		TransactionReceipt receipt = contractTransaction.iouRecycle(new Utf8String(iou.getIouId()),new Int256(iou.getPaidAmt())).get();
-		logger.info("iouRecycle receipt transactionHash:{}",receipt);
-		List<IouRecycleEventResponse> responses = contractTransaction.getIouRecycleEvents(receipt);
-		String result=responses.get(0)._json.toString(); 
-		return result;
-	}
+//	}
+//	
+//	public static String setIouLimit(Organ org) throws InterruptedException, ExecutionException{
+//		TransactionReceipt receipt = contractTransaction.setIouLimit(new Utf8String(org.getOrgID()), new Int256(org.getIouLimit())).get();
+//		logger.info("setIouLimit receipt transactionHash:{}",receipt.getTransactionHash());
+//		List<SetIouLimitEventResponse> responses = contractTransaction.getSetIouLimitEvents(receipt);
+//		String result=responses.get(0)._json.toString(); 
+//		return result;
+//	}
+//	
+//	public static String initIouLimitData(Organ org) throws InterruptedException, ExecutionException{
+//		TransactionReceipt receipt = contractTransaction.initIouLimitData(new Utf8String(org.getOrgID()), new Utf8String(org.getOrgName()),new Int256(org.getIouLimit()), new Utf8String(org.getCreateTime()), new Utf8String(org.getUpdateTime())).get();
+//		logger.info("initIouLimitData receipt transactionHash:{}",receipt.getTransactionHash());
+//		List<InitIouLimitDataEventResponse> responses = contractTransaction.getInitIouLimitDataEvents(receipt);
+//		String result=responses.get(0)._json.toString(); 
+//		return result;
+//	}
+//	
+//	public static String queryTransByConId(String conID) throws InterruptedException, ExecutionException{
+//		String receipt = contractTransaction.queryTransByConId(new Utf8String(conID)).get().getValue();
+//		logger.info("queryTransByConId receipt transactionHash:{}",receipt);
+//		return receipt;
+//	}
+//	
+//	public static String getIouLimit(IOU iou) throws InterruptedException, ExecutionException{
+//		String receipt = contractTransaction.getIouLimit(new Utf8String(iou.getFromOrg())).get().getValue();
+//		logger.info("getIouLimit receipt transactionHash:{}",receipt);
+//		return receipt;
+//	}
+//	
+//	public static String getIouList(int pageNo,int pageSize) throws InterruptedException, ExecutionException{
+//		String receipt = contractTransaction.getIouList(new Uint256(pageNo),new Uint256(pageSize)).get().getValue();
+//		logger.info("getIouList receipt transactionHash:{}",receipt);
+//		return receipt;
+//	}
+//	public static String queryTransList(int pageNo,int pageSize) throws InterruptedException, ExecutionException{
+//		String receipt = contractTransaction.queryTransList(new Uint256(pageNo),new Uint256(pageSize)).get().getValue();
+//		logger.info("queryTransList receipt transactionHash:{}",receipt);
+//		return receipt;
+//	}
+//	public static String iouRecycle(IOU iou) throws InterruptedException, ExecutionException{
+//		TransactionReceipt receipt = contractTransaction.iouRecycle(new Utf8String(iou.getIouId()),new Int256(iou.getPaidAmt())).get();
+//		logger.info("iouRecycle receipt transactionHash:{}",receipt);
+//		List<IouRecycleEventResponse> responses = contractTransaction.getIouRecycleEvents(receipt);
+//		String result=responses.get(0)._json.toString(); 
+//		return result;
+//	}
 	
 }
