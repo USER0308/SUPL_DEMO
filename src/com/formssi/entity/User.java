@@ -8,6 +8,9 @@ import com.alibaba.fastjson.annotation.JSONField;
  * @author Administrator
  * 1    2    3    4    5    6    7    8    9    10
  * 上将     中将       少将      大校       上校        中校      少校       上尉        中尉         少尉
+ *  
+ *  1    2    3    4
+ *  司令部   政治部   后勤部     装备部
  */
 
 public class User {
@@ -15,7 +18,7 @@ public class User {
 	private String userId;		//	用户Id
 	private String pubKey;		//	用户公钥
 	private int rank;			//	军衔  1~10
-	private String department;	//	所属部门
+	private int department;		//	所属部门
 	private String createTime;	//	创建时间
 	private String updateTime;	//	更新时间
 
@@ -47,11 +50,11 @@ public class User {
 	}
 	
 	@JSONField(name = "department")
-	public String getDepartment() {
+	public int getDepartment() {
 		return department;
 	}
 	@JSONField(name = "department")
-	public void setDepartment(String department) {
+	public void setDepartment(int department) {
 		this.department = department;
 	}
 	

@@ -10,7 +10,7 @@ public class File {
 	private String fileId;			//	文件ID
 	private String fileAddr;		//	文件地址
 	private String pubKeyToSymkey;	//	对称密钥（加密后）
-	private String plotId;			//	策略Id
+	private String strategyId;		//	策略Id
 	private String department; 		//  上传部门
 	private String userId; 			//  上传人
 	private String uploadTime;		//	上传时间
@@ -42,13 +42,13 @@ public class File {
 		this.pubKeyToSymkey = pubKeyToSymkey;
 	}
 	
-	@JSONField(name = "plotId")
+	@JSONField(name = "strategyId")
 	public String getPlotId() {
-		return plotId;
+		return strategyId;
 	}
-	@JSONField(name = "plotId")
-	public void setPlotId(String plotId) {
-		this.plotId = plotId;
+	@JSONField(name = "strategyId")
+	public void setPlotId(String strategyId) {
+		this.strategyId = strategyId;
 	}
 	
 	@JSONField(name = "department")
@@ -89,8 +89,8 @@ public class File {
 	
 	@Override
 	public String toString() {
-		return "File [fileId=" + fileId + ", fileAddr=" + fileAddr + ", pubKeyToSymkey=" + pubKeyToSymkey + ", plotId="
-				+ plotId + ", department=" + department + ", userId=" + userId + ", uploadTime=" + uploadTime + "]";
+		return "File [fileId=" + fileId + ", fileAddr=" + fileAddr + ", pubKeyToSymkey=" + pubKeyToSymkey + ", strategyId="
+				+ strategyId + ", department=" + department + ", userId=" + userId + ", uploadTime=" + uploadTime + "]";
 	}
 
 }
