@@ -4,70 +4,69 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 
-/**
- * Created by Jerry on 2018/4/9.
- */
-
-
 public class User {
-	private String username="";
-	private String password="";
-	private String orgname="";
-	private String usertype="";
-	private String success="false";
-	private String message="";
 	
-	
-	
-	@JSONField(name = "message")
-	public String getMessage() {
-		return message;
+	private String userId;		//	用户Id
+	private String pubKey;		//	用户公钥
+	private int rank;			//	军衔 TODO 需要详细讨论数据
+	private String department;	//	所属部门
+	private String createTime;	//	创建时间
+	private String updateTime;	//	更新时间
+
+	@JSONField(name = "userId")
+	public String getUserId() {
+		return userId;
 	}
-	@JSONField(name = "message")
-	public void setMessage(String message) {
-		this.message = message;
-	}
-	@JSONField(name = "success")
-	public String getSuccess() {
-		return success;
-	}
-	@JSONField(name = "success")
-	public void setSuccess(String success) {
-		this.success = success;
+	@JSONField(name = "userId")
+	public void setUserId(String userId) {
+		this.userId = userId;
 	}
 	
-	@JSONField(name = "orgname")
-	public String getOrgname() {
-		return orgname;
+	@JSONField(name = "pubKey")
+	public String getPubKey() {
+		return pubKey;
 	}
-	@JSONField(name = "orgname")
-	public void setOrgname(String orgname) {
-		this.orgname = orgname;
+	@JSONField(name = "pubKey")
+	public void setPubKey(String pubKey) {
+		this.pubKey = pubKey;
 	}
-	@JSONField(name = "username")
-	public String getUsername() {
-		return username;
+	
+	@JSONField(name = "rank")
+	public int getRank() {
+		return rank;
 	}
-	@JSONField(name = "username")
-	public void setUsername(String username) {
-		this.username = username;
+	@JSONField(name = "rank")
+	public void setRank(int rank) {
+		this.rank = rank;
 	}
-	@JSONField(name = "password")
-	public String getPassword() {
-		return password;
+	
+	@JSONField(name = "department")
+	public String getDepartment() {
+		return department;
 	}
-	@JSONField(name = "password")
-	public void setPassword(String password) {
-		this.password = password;
+	@JSONField(name = "department")
+	public void setDepartment(String department) {
+		this.department = department;
 	}
-	@JSONField(name = "usertype")
-	public String getUsertype() {
-		return usertype;
+	
+	@JSONField(name = "createTime")
+	public String getCreateTime() {
+		return createTime;
 	}
-	@JSONField(name = "usertype")
-	public void setUsertype(String usertype) {
-		this.usertype = usertype;
+	@JSONField(name = "createTime")
+	public void setCreateTime(String createTime) {
+		this.createTime = createTime;
 	}
+	
+	@JSONField(name = "updateTime")
+	public String getUpdateTime() {
+		return updateTime;
+	}
+	@JSONField(name = "updateTime")
+	public void setUpdateTime(String updateTime) {
+		this.updateTime = updateTime;
+	}
+	
 	public static User parse(String json) {
 		User object=JSON.parseObject(json, User.class);
 		return object;
@@ -76,10 +75,12 @@ public class User {
 	public String toJSON() {
 		return JSONObject.toJSONString(this);
 	}
+	
 	@Override
 	public String toString() {
-		return "User [username=" + username + ", password=" + password + ", orgname=" + orgname + ", usertype="
-				+ usertype + ", success=" + success + "]";
+		return "User [userId=" + userId + ", pubKey=" + pubKey + ", rank=" + rank + ", department=" + department
+				+ ", createTime=" + createTime + ", updateTime=" + updateTime + "]";
 	}
+	
 	
 }
