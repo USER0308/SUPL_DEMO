@@ -6,12 +6,14 @@ import com.alibaba.fastjson.annotation.JSONField;
 
 
 public class File {
+	
 	private String fileId;			//	文件ID
 	private String fileAddr;		//	文件地址
 	private String pubKeyToSymkey;	//	对称密钥（加密后）
 	private String plotId;			//	策略Id
+	private String department; 		//  上传部门
+	private String userId; 			//  上传人
 	private String uploadTime;		//	上传时间
-	
 	
 	@JSONField(name = "fileId")
 	public String getFileId() {
@@ -49,6 +51,24 @@ public class File {
 		this.plotId = plotId;
 	}
 	
+	@JSONField(name = "department")
+	public String getDepartment() {
+		return department;
+	}
+	@JSONField(name = "department")
+	public void setDepartment(String department) {
+		this.department = department;
+	}
+	
+	@JSONField(name = "userId")
+	public String getUserId() {
+		return userId;
+	}
+	@JSONField(name = "userId")
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
+	
 	@JSONField(name = "updateTime")
 	public String getUploadTime() {
 		return uploadTime;
@@ -58,7 +78,6 @@ public class File {
 		this.uploadTime = uploadTime;
 	}
 	
-	
 	public static File parse(String json) {
 		File object=JSON.parseObject(json, File.class);
 		return object;
@@ -67,12 +86,11 @@ public class File {
 	public String toJSON() {
 		return JSONObject.toJSONString(this);
 	}
+	
 	@Override
 	public String toString() {
 		return "File [fileId=" + fileId + ", fileAddr=" + fileAddr + ", pubKeyToSymkey=" + pubKeyToSymkey + ", plotId="
-				+ plotId + ", uploadTime=" + uploadTime + "]";
+				+ plotId + ", department=" + department + ", userId=" + userId + ", uploadTime=" + uploadTime + "]";
 	}
-	
-	
 
 }

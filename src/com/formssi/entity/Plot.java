@@ -7,7 +7,6 @@ import com.alibaba.fastjson.annotation.JSONField;
 
 public class Plot {
 	
-	@JSONField(name = "department")
 	
 	private String plotId;				//策略Id
 	private int rank;					//策略规定的最小可以查看的军衔
