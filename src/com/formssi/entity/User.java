@@ -15,8 +15,8 @@ import com.alibaba.fastjson.annotation.JSONField;
 
 public class User {
 	
-	private String userId;		//	用户Id	上链
-	private String userName;	//	登录用户名	存数据库
+	private String userId;		//	登录用户Id	上链&存数据库
+	private String userName;	//	用户名	存数据库
 	private String password;	//	登录密码	存数据库
 	private String pubKey;		//	用户公钥	上链
 	private int rank;			//	军衔  1~10	上链
