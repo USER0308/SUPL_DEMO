@@ -17,6 +17,10 @@ public class UserServiceImpl implements UserService {
 	// 注入Service依赖
 	@Autowired
 	private UserDao userDao;
+	
+	public void add(User user) {
+		userDao.add(user);
+	}
 
 	public User getById(String id) {
 		return userDao.queryById(id);

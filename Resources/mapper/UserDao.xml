@@ -6,16 +6,22 @@
 <!-- namespace配置了要映射的dao -->
 <mapper namespace="com.formssi.dao.UserDao">
 	<!-- 目的：为dao接口方法提供sql语句配置 -->
-	<select id="queryById" resultType="User" parameterType="String">
-		<!-- 具体的sql -->
+	<select id="queryById" resultType="com.formssi.entity.User" parameterType="String">
 		SELECT
-			ch_name as orgname,
+			id as userId,
+			name as userName,
 			pw as password,
-			type as usertype
+			rank as rank,
+			department as department
 		FROM
-			account
+			army_user
 		WHERE
 			id = #{id}
 	</select>
+	
+	<insert id="add" parameterType="com.formssi.entity.User">
+		insert into army_user(id, name, pw, rank, department, type) 
+		values(#{userId}, #{userName}, #{password}, #{rank}, #{department}, 0)
+	</insert>
 	
 </mapper>
