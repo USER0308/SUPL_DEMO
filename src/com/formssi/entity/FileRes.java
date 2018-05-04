@@ -6,11 +6,11 @@ import com.alibaba.fastjson.annotation.JSONField;
 
 public class FileRes {
 	
-	private String responseId;		//	响应Id
-	private String requestId;		//	请求Id
-	private String fileId;			//	文件Id
-	private String pubKeyToSymkey;	//	请求的公钥对对称密钥加密
-	private String fileAddr;		//	文件地址
+	private String responseId;		//	响应Id				上链	RES+[请求id去掉前3位]
+	private String requestId;		//	请求Id				上链
+	private String fileId;			//	文件Id				上链
+	private String pubKeyToSymkey;	//	请求的公钥对对称密钥加密	上链
+	private String fileAddr;		//	文件地址				上链
 	
 	@JSONField(name = "responseId")
 	public String getResponseId() {

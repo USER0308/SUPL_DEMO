@@ -10,17 +10,19 @@ import com.alibaba.fastjson.annotation.JSONField;
  * 上将     中将       少将      大校       上校        中校      少校       上尉        中尉         少尉
  *  
  *  1    2    3    4
- *  司令部   政治部   后勤部     装备部
+ *  司令部   政治部   后勤部    装备部
  */
 
 public class User {
 	
-	private String userId;		//	用户Id
-	private String pubKey;		//	用户公钥
-	private int rank;			//	军衔  1~10
-	private int department;		//	所属部门
-	private String createTime;	//	创建时间
-	private String updateTime;	//	更新时间
+	private String userId;		//	用户Id	上链
+	private String userName;	//	登录用户名	存数据库
+	private String password;	//	登录密码	存数据库
+	private String pubKey;		//	用户公钥	上链
+	private int rank;			//	军衔  1~10	上链
+	private int department;		//	所属部门	上链
+	private String createTime;	//	创建时间	上链
+	private String updateTime;	//	更新时间	上链
 
 	@JSONField(name = "userId")
 	public String getUserId() {
@@ -29,6 +31,24 @@ public class User {
 	@JSONField(name = "userId")
 	public void setUserId(String userId) {
 		this.userId = userId;
+	}
+	
+	@JSONField(name = "userName")
+	public String getUserName() {
+		return userName;
+	}
+	@JSONField(name = "userName")
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+	
+	@JSONField(name = "password")
+	public String getPassword() {
+		return password;
+	}
+	@JSONField(name = "password")
+	public void setPassword(String password) {
+		this.password = password;
 	}
 	
 	@JSONField(name = "pubKey")
