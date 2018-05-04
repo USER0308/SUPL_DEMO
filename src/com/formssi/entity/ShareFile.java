@@ -1,20 +1,26 @@
 package com.formssi.entity;
 
+import java.sql.Timestamp;
 import java.util.List;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 
+/**
+ * 策略上链部分需要处理。  x,x,x,x
+ * 第一位是allowRank，后面的就是allowDep遍历出来的结果
+ * @author Administrator
+ */
 public class ShareFile {
 	
-	private String fileId;			//	文件ID
-	private String fileAddr;		//	文件地址
-	private String pubKeyToSymkey;	//	对称密钥（加密后）
-	private int allowRank;			//允许访问的军衔
-	private List<Integer> allowDep;			//允许访问的部门
-	private String department; 		//  上传部门
-	private String userId; 			//  上传人
-	private String uploadTime;		//	上传时间
+	private String fileId;			//	文件ID			上链&存数据库
+	private String fileAddr;		//	文件地址 			上链
+	private String pubKeyToSymkey;	//	对称密钥（加密后）	上链
+	private int allowRank;			//	允许访问的军衔		处理上链&存数据库
+	private List<Integer> allowDep;	//	允许访问的部门		处理上链&存数据库
+	private int department; 		//  上传部门			上链&存数据库
+	private String userId; 			//  上传人			上链&存数据库
+	private Timestamp uploadTime;	//	上传时间			上链&存数据库
 	
 	@JSONField(name = "fileId")
 	public String getFileId() {
@@ -62,12 +68,12 @@ public class ShareFile {
 	}
 	
 	@JSONField(name = "department")
-	public String getDepartment() {
+	public int getDepartment() {
 		return department;
 	}
 
 	@JSONField(name = "department")
-	public void setDepartment(String department) {
+	public void setDepartment(int department) {
 		this.department = department;
 	}
 	
@@ -81,11 +87,11 @@ public class ShareFile {
 	}
 	
 	@JSONField(name = "updateTime")
-	public String getUploadTime() {
+	public Timestamp getUploadTime() {
 		return uploadTime;
 	}
 	@JSONField(name = "updateTime")
-	public void setUploadTime(String uploadTime) {
+	public void setUploadTime(Timestamp uploadTime) {
 		this.uploadTime = uploadTime;
 	}
 	
@@ -99,9 +105,10 @@ public class ShareFile {
 	}
 	@Override
 	public String toString() {
-		return "File [fileId=" + fileId + ", fileAddr=" + fileAddr + ", pubKeyToSymkey=" + pubKeyToSymkey
+		return "ShareFile [fileId=" + fileId + ", fileAddr=" + fileAddr + ", pubKeyToSymkey=" + pubKeyToSymkey
 				+ ", allowRank=" + allowRank + ", allowDep=" + allowDep + ", department=" + department + ", userId="
 				+ userId + ", uploadTime=" + uploadTime + "]";
 	}
 
+	
 }

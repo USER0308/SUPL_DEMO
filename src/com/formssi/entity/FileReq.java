@@ -6,10 +6,10 @@ import com.alibaba.fastjson.annotation.JSONField;
 
 public class FileReq {
 	
-	private String requestId;	//	请求Id
-	private String userId;		//	用户Id
-	private String fileId;		//	文件Id
-	private String requestTime;	//	请求时间
+	private String requestId;	//	请求Id	上链	REQ+userId+当前时间毫秒数[new Date().getTime()]
+	private String userId;		//	用户Id	上链
+	private String fileId;		//	文件Id	上链
+	private String requestTime;	//	请求时间	上链	yyyyMMdd hh:mm:ss
 	
 	@JSONField(name = "requestId")
 	public String getRequestId() {
