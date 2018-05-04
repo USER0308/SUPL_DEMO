@@ -17,7 +17,8 @@ public class ShareFile {
 	private String fileAddr;		//	文件地址 			上链
 	private String pubKeyToSymkey;	//	对称密钥（加密后）	上链
 	private int allowRank;			//	允许访问的军衔		处理上链&存数据库
-	private List<Integer> allowDep;	//	允许访问的部门		处理上链&存数据库
+	private String allowDep;		//	允许访问的部门		处理上链&存数据库
+	private String description;		//	文件描述			上链&存数据库
 	private int department; 		//  上传部门			上链&存数据库
 	private String userId; 			//  上传人			上链&存数据库
 	private Timestamp uploadTime;	//	上传时间			上链&存数据库
@@ -59,12 +60,21 @@ public class ShareFile {
 	}
 	
 	@JSONField(name = "allowDep")
-	public List<Integer> getAllowDep() {
+	public String getAllowDep() {
 		return allowDep;
 	}
 	@JSONField(name = "allowDep")
-	public void setAllowDep(List<Integer> allowDep) {
+	public void setAllowDep(String allowDep) {
 		this.allowDep = allowDep;
+	}
+	
+	@JSONField(name = "description")
+	public String getDescription() {
+		return description;
+	}
+	@JSONField(name = "description")
+	public void setDescription(String description) {
+		this.description = description;
 	}
 	
 	@JSONField(name = "department")
