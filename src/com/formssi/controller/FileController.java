@@ -59,7 +59,7 @@ public class FileController {
 		return returnJson.toJSON();
 	}
 	
-	@RequestMapping(value = "/getAllFile", produces = "application/json;charset=UTF-8")
+	@RequestMapping(value = "/queryAllFile", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String queryAll(@RequestParam("data") String date, HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
@@ -68,9 +68,9 @@ public class FileController {
 		
 		ReturnJson returnJson = new ReturnJson();
 		
-		if (null == shareFile || "".equals(shareFile.getFileId()) ) {
+		if (null == shareFile ) {
 			returnJson.setSuccess(false);
-			returnJson.setMessage("文件不存在！");
+			returnJson.setMessage("查询条件不存在！");
 			return returnJson.toJSON();
 		}
 		
@@ -83,10 +83,10 @@ public class FileController {
 	        
 	        returnJson.setObj(page);
 			returnJson.setSuccess(true);
-			returnJson.setMessage("上传文件成功！");
+			returnJson.setMessage("查询文件列表成功！");
 		}catch(Exception e) {
 			returnJson.setSuccess(false);
-			returnJson.setMessage("上传文件失败！");
+			returnJson.setMessage("查询文件列表失败！");
 			return returnJson.toJSON();
 		}
 		
