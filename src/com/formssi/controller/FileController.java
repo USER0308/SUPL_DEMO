@@ -30,7 +30,7 @@ public class FileController {
 	
 	@Autowired
 	private FileServiceImpl fileService;
-
+ 
 	@RequestMapping(value = "/uploadFile", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String addFile(@RequestParam("data") String date, HttpServletResponse response) {
