@@ -16,9 +16,6 @@ import utils.Base64Utils;
 import utils.Token;
 import utils.Utils;
 
-/**
- * Created by Jerry on 2018/4/8.
- */
 @Controller
 //@RequestMapping("/login")
 public class UserController {
