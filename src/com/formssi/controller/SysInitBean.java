@@ -23,7 +23,8 @@ public class SysInitBean implements InitializingBean, ServletContextAware {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		new IOUService().initObj();
+		new IOUService();
+		IOUService.initObj();
 	}
 
 }
