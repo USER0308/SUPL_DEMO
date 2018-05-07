@@ -38,5 +38,10 @@ public class FileServiceImpl implements FileService {
 		return fileDao.queryAll(shareFile);
 	}
 
+	@Override
+	public void dowloadFile(ShareFile shareFile) {
+		// TODO Auto-generated method stub
+		//调区块链请求
+	}
 
 }

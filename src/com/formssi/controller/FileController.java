@@ -25,7 +25,7 @@ public class FileController {
  
 	@RequestMapping(value = "/uploadFile", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String addFile(@RequestParam("data") String date, HttpServletResponse response) {
+	public String uploadFile(@RequestParam("data") String date, HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		
 		ShareFile shareFile = ShareFile.parse(date);
@@ -51,9 +51,37 @@ public class FileController {
 		return returnJson.toJSON();
 	}
 	
+	@RequestMapping(value = "/dowloadFile", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String dowloadFile(@RequestParam("data") String date, HttpServletResponse response) {
+		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+		
+		ShareFile shareFile = ShareFile.parse(date);
+		
+		ReturnJson returnJson = new ReturnJson();
+		
+		if (null == shareFile || "".equals(shareFile.getFileId()) ) {
+			returnJson.setSuccess(false);
+			returnJson.setMessage("文件不存在！");
+			return returnJson.toJSON();
+		}
+		
+		try {
+			fileService.dowloadFile(shareFile);
+			returnJson.setSuccess(true);
+			returnJson.setMessage("文件下载成功！");
+		}catch(Exception e) {
+			returnJson.setSuccess(false);
+			returnJson.setMessage("文件下载失败！");
+			return returnJson.toJSON();
+		}
+		
+		return returnJson.toJSON();
+	}
+	
 	@RequestMapping(value = "/queryAllFile", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String queryAll(@RequestParam("data") String date, HttpServletResponse response) {
+	public String queryAllFile(@RequestParam("data") String date, HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		
 		ShareFile shareFile = ShareFile.parse(date);

@@ -11,4 +11,6 @@ public interface FileService {
 	void add(ShareFile shareFile);
 	
 	List<ShareFile> queryAll(ShareFile shareFile);
+	
+	void dowloadFile(ShareFile shareFile);
 }
