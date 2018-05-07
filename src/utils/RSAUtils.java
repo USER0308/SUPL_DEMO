@@ -1,6 +1,8 @@
 package utils;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileWriter;
 import java.security.Key;
 import java.security.KeyFactory;
 import java.security.KeyPair;
@@ -318,6 +320,32 @@ public class RSAUtils {
             throws Exception {
         Key key = (Key) keyMap.get(PUBLIC_KEY);
         return Base64Utils.encode(key.getEncoded());
+    }
+    
+    /**
+     * <p>
+     * 公私钥对写入文件
+     * </p>
+     * 
+     * @param keyMap 密钥对 pubKeyPath 公钥地址 priKeyPath 私钥地址
+     * @return
+     * @throws Exception
+     * @author wangbin
+     */
+    public static String keyFiles(Map<String, Object> keyMap, String pubKeyPath, String priKeyPath)
+            throws Exception {
+        String publicKey = getPublicKey(keyMap);
+        String privateKey = getPrivateKey(keyMap);
+        
+        FileWriter pubfw = new FileWriter(pubKeyPath);
+        pubfw.write(publicKey);
+        pubfw.close();
+        
+        FileWriter prifw = new FileWriter(priKeyPath);
+        prifw.write(privateKey);
+        prifw.close();
+        
+        return "pubKeyPath:"+pubKeyPath+";priKeyPath:"+priKeyPath;
     }
 
 }
