@@ -13,6 +13,7 @@ import com.formssi.entity.User;
 import com.formssi.service.impl.UserServiceImpl;
 
 import utils.Base64Utils;
+import utils.Token;
 import utils.Utils;
 
 /**
@@ -30,13 +31,13 @@ public class UserController {
 	public String login(@RequestParam("data") String date, HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		
-		User userInput=User.parse(date);
+		User userInput = User.parse(date);
 		
 		ReturnJson returnJson = new ReturnJson();
 		
 		try {
 			//通过userService去数据库查该id的用户对象。
-			User user=userService.getById(userInput.getUserId());
+			User user = userService.getById(userInput.getUserId());
 			//查到映射成的对象如果为空，表示该用户不存在
 			if ("".equals(user) || null==user) {
 				returnJson.setSuccess(false);
@@ -46,6 +47,8 @@ public class UserController {
 				//用户密码不为空，且密码一致。登录成功
 				returnJson.setSuccess(true);
 				returnJson.setMessage("登录成功！");
+				//登录成功返回token
+				returnJson.setObj(Token.getToken());
 			}else {//其他情况一律登录失败
 				returnJson.setSuccess(false);
 				returnJson.setMessage("用户名或密码错误！");
@@ -64,7 +67,7 @@ public class UserController {
 	public String addUser(@RequestParam("data") String date, HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		
-		User user=User.parse(date);
+		User user = User.parse(date);
 		
 		ReturnJson returnJson = new ReturnJson();
 		
@@ -87,7 +90,7 @@ public class UserController {
 			return returnJson.toJSON();
 		}
 		
-		return user.toJSON();
+		return returnJson.toJSON();
 	}
 	
 }

@@ -23,6 +23,9 @@ public class ShareFile {
 	private String userId; 			//  上传人			上链&存数据库
 	private Timestamp uploadTime;	//	上传时间			上链&存数据库
 	
+	private int pageNum; //当前是第几页
+	private int pageSize; //每页显示多少条
+	
 	@JSONField(name = "fileId")
 	public String getFileId() {
 		return fileId;
@@ -100,9 +103,30 @@ public class ShareFile {
 	public Timestamp getUploadTime() {
 		return uploadTime;
 	}
+	
 	@JSONField(name = "updateTime")
 	public void setUploadTime(Timestamp uploadTime) {
 		this.uploadTime = uploadTime;
+	}
+	
+	@JSONField(name = "pageNum")
+	public int getPageNum() {
+		return pageNum;
+	}
+	
+	@JSONField(name = "pageNum")
+	public void setPageNum(int pageNum) {
+		this.pageNum = pageNum;
+	}
+	
+	@JSONField(name = "pageSize")
+	public int getPageSize() {
+		return pageSize;
+	}
+	
+	@JSONField(name = "pageSize")
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
 	}
 	
 	public static ShareFile parse(String json) {
