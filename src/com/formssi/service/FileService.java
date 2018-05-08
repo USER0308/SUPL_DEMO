@@ -8,7 +8,7 @@ public interface FileService {
 	
 	ShareFile getById(String fileId);
 
-	void add(ShareFile shareFile);
+	void add(ShareFile shareFile) throws Exception;
 	
 	List<ShareFile> queryAll(ShareFile shareFile);
 	

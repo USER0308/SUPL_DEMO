@@ -30,8 +30,11 @@ import com.formssi.entity.ShareFile;
 import com.formssi.entity.User;
 import exception.initConfigException;
 import utils.PropertiesUtil;
+import utils.Utils;
 import wrapper.FileInfo;
+import wrapper.FileInfo.NewFileEventResponse;
 import wrapper.FileInfo.NewUserEventResponse;
+import wrapper.FileInfo.RequestFileEventEventResponse;
 
 @Controller
 public class FileShareService {
@@ -145,6 +148,9 @@ public class FileShareService {
 	}
 	
 	///////////////////////////////////////////////////////////////////////////////////////////
+	
+	
+	//Y
 	public static String addUser(User user) throws InterruptedException, ExecutionException{
 		int contractId = choiceContract(user.getUserId());//通过身份证号码来选择哪个合约
 		
@@ -158,6 +164,7 @@ public class FileShareService {
 		return result;
 	}
 	
+	//Y
 	public static String UploadFile(ShareFile sf) throws InterruptedException, ExecutionException{
 		int contractId = choiceContract(sf.getUserId());//通过身份证号码来选择哪个合约
 
@@ -166,24 +173,27 @@ public class FileShareService {
 
 		TransactionReceipt receipt = contractListOfObservable.get(contractId).UploadFile(new Utf8String(sf.getFileId()),
 				new Utf8String(sf.getFileAddr()),new Utf8String(sf.getPubKeyToSymkey()), new Utf8String(strategy.toString()),
-				new Utf8String(sf.getDescription()), new Utf8String(sf.getUploadTime().toString()),new Utf8String(sf.getUserId()),
+				new Utf8String(sf.getDescription()), new Utf8String(Utils.sdf(sf.getUploadTime())),new Utf8String(sf.getUserId()),
 				new Utf8String(Integer.toString(sf.getDepartment()))).get();
 		logger.info("UploadFile receipt transactionHash:{}",receipt.getTransactionHash());
 		
-		List<NewUserEventResponse> responses = contractListOfObservable.get(contractId).getNewUserEvents(receipt);
+		List<NewFileEventResponse> responses = contractListOfObservable.get(contractId).getNewFileEvents(receipt);
 		String result = responses.get(0)._json.toString();
 		return result;
 	}
 
+	//Y
 	public static String RequestFile(FileReq fReq) throws InterruptedException, ExecutionException{
 		int contractId = choiceContract(fReq.getUserId());//通过身份证号码来选择哪个合约
 
 		TransactionReceipt receipt = contractListOfObservable.get(contractId).RequestFile(new Utf8String(fReq.getUserId()),new Utf8String(fReq.getFileId()),new Utf8String(fReq.getRequestId()),new Utf8String(fReq.getRequestTime())).get();
 		logger.info("RequestFile receipt transactionHash:{}",receipt.getTransactionHash());
 		
-		List<NewUserEventResponse> responses = contractListOfObservable.get(contractId).getNewUserEvents(receipt);
-		String result = responses.get(0)._json.toString();
-		return result;
+		List<RequestFileEventEventResponse> responses = contractListOfObservable.get(contractId).getRequestFileEventEvents(receipt);
+		logger.info("response size==>",responses.size());
+		String state = responses.get(0).state.toString();
+		String info = responses.get(0).info.toString();
+		return state+"|-|"+info;
 	}
 	
 	public static String ResponseFile(FileRes fRes,String userId) throws InterruptedException, ExecutionException{

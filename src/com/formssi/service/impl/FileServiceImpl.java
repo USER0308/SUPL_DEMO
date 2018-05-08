@@ -1,15 +1,18 @@
 package com.formssi.service.impl;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.formssi.dao.FileDao;
 import com.formssi.entity.ShareFile;
 import com.formssi.service.FileService;
+import com.formssi.service.FileShareService;
 
 @Service
 public class FileServiceImpl implements FileService {
@@ -22,14 +25,20 @@ public class FileServiceImpl implements FileService {
 
 	@Override
 	public ShareFile getById(String fileId) {
-
 		return fileDao.queryById(fileId);
 	}
 
 	@Override
-	public void add(ShareFile shareFile) {
-		
+	@Transactional
+	public void add(ShareFile shareFile) throws Exception {
 		fileDao.add(shareFile);
+		try {
+			FileShareService.UploadFile(shareFile);
+		} catch (InterruptedException | ExecutionException e) {
+			logger.error("Upload File to blockchain filed!!");
+			throw new Exception("add file to blockchain made a exception!");
+		}
+		
 	}
 
 	@Override
