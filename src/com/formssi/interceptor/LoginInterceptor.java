@@ -2,6 +2,8 @@ package com.formssi.interceptor;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -13,6 +15,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.formssi.entity.ReturnJson;
+import com.sun.jmx.snmp.Timestamp;
 
 import utils.Token;
 
@@ -47,6 +50,14 @@ public class LoginInterceptor implements HandlerInterceptor{
     	
         ReturnJson returnJson = new ReturnJson();
         
+        //说明是登录请求，无需拦截
+        if(request.getRequestURI().indexOf("login") != -1) {
+        	returnJson.setSuccess(true);
+            returnJson.setMessage("登录请求成功");
+            
+            return true;
+        }
+        
         String token = request.getHeader("token");
 
         if(token == null){
@@ -59,11 +70,39 @@ public class LoginInterceptor implements HandlerInterceptor{
             return false;
         }
         
+        HttpSession session = request.getSession();
+        Map<String, Long> map = (Map<String, Long>)session.getAttribute("token");
+        
+        if(map == null) {
+        	returnJson.setSuccess(false);
+            returnJson.setMessage("登录验证失败，已登出");
+            
+            dealJsonReturn(request, response, returnJson.toJSON());
+            
+            return false;
+        }
+        
+        Long dateTime = map.get(token);
+        Long before5 = new Timestamp().getDateTime() - 300000;//5分钟为超时时间
+        if(dateTime < before5) {
+        	returnJson.setSuccess(false);
+            returnJson.setMessage("登录验证失败，已超时");
+            
+            dealJsonReturn(request, response, returnJson.toJSON());
+            
+            return false;
+        }
+        
         returnJson.setSuccess(true);
         returnJson.setMessage("登录验证成功");
         
+        //更新token的时间
+        String newToken = Token.getToken();
+        Map<String, Long> newMap = new HashMap<>();
+        newMap.put(newToken, new Timestamp().getDateTime());
+        session.setAttribute("token", newMap);
         //更新Token，防止重复提交
-        response.setHeader("token", Token.getToken());
+        response.setHeader("token", newToken);
         
         dealJsonReturn(request, response, returnJson.toJSON()); 
         
