@@ -1,8 +1,5 @@
 package com.formssi.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
@@ -17,7 +14,6 @@ import com.formssi.entity.User;
 import com.formssi.service.impl.UserServiceImpl;
 import com.sun.jmx.snmp.Timestamp;
 
-import utils.Base64Utils;
 import utils.MD5Util;
 import utils.Token;
 import utils.Utils;
@@ -54,10 +50,8 @@ public class UserController {
 				String token = Token.getToken();
 				returnJson.setObj(token);
 				
-				//带时间的token存入session，便于拦截器失效校验
-				Map<String, Long> map = new HashMap<>();
-				map.put(token, new Timestamp().getDateTime());
-				session.setAttribute("token", map);
+				//带时间的token存入session，便于拦截器失效校验--正规做法是token存入redis，设置失效时间，拦截器查询token与页面传过来的做比较校验。
+				session.setAttribute(user.getUserId(), token + "," + new Timestamp().getDateTime());
 			}else {//其他情况一律登录失败
 				returnJson.setSuccess(false);
 				returnJson.setMessage("用户名或密码错误！");
@@ -68,6 +62,21 @@ public class UserController {
 			returnJson.setMessage("登录失败！");
 			return returnJson.toJSON();
 		}
+		return returnJson.toJSON();
+	}
+	
+	@RequestMapping(value = "/logout", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String logout(@RequestParam("data") String date, HttpServletResponse response, HttpSession session) {
+		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+		
+		User user = User.parse(date);
+		session.removeAttribute(user.getUserId());
+		
+		ReturnJson returnJson = new ReturnJson();
+		returnJson.setSuccess(true);
+		returnJson.setMessage("登出成功！");
+
 		return returnJson.toJSON();
 	}
 	

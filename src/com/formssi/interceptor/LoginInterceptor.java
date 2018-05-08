@@ -14,10 +14,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.fastjson.JSON;
 import com.formssi.entity.ReturnJson;
+import com.formssi.entity.User;
 import com.sun.jmx.snmp.Timestamp;
 
 import utils.Token;
+import utils.Utils;
 
 /**
  * 登录认证的拦截器
@@ -59,6 +62,18 @@ public class LoginInterceptor implements HandlerInterceptor{
         }
         
         String token = request.getHeader("token");
+        String userIdForUploadFile = request.getParameter("userId");
+        String data = request.getParameter("data");
+        User userInput = User.parse(data);
+        String userIdForOther = userInput.getUserId();
+        String userId = null;
+        
+        if(!Utils.stringIsNull(userIdForUploadFile)) {
+        	userId = userIdForUploadFile;
+        }
+        if(!Utils.stringIsNull(userIdForOther)) {
+        	userId = userIdForOther;
+        }
 
         if(token == null){
         	
@@ -71,9 +86,9 @@ public class LoginInterceptor implements HandlerInterceptor{
         }
         
         HttpSession session = request.getSession();
-        Map<String, Long> map = (Map<String, Long>)session.getAttribute("token");
+        String tokenAnddateTime = (String)session.getAttribute(userId);
         
-        if(map == null) {
+        if(tokenAnddateTime == null) {
         	returnJson.setSuccess(false);
             returnJson.setMessage("登录验证失败，已登出");
             
@@ -82,7 +97,20 @@ public class LoginInterceptor implements HandlerInterceptor{
             return false;
         }
         
-        Long dateTime = map.get(token);
+        String[] tokenAnddateTimeArray = tokenAnddateTime.split(",");
+        String tokenStorage = tokenAnddateTimeArray[0];
+        
+        if(tokenStorage == null || token == null || !tokenStorage.equals(token)) {
+        	returnJson.setSuccess(false);
+            returnJson.setMessage("登录验证失败，token不匹配");
+            
+            dealJsonReturn(request, response, returnJson.toJSON());
+            
+            return false;
+        }
+        
+        String dateTimeStr = tokenAnddateTimeArray[1];
+        Long dateTime = Long.parseLong(dateTimeStr);
         Long before5 = new Timestamp().getDateTime() - 300000;//5分钟为超时时间
         if(dateTime < before5) {
         	returnJson.setSuccess(false);
@@ -96,11 +124,9 @@ public class LoginInterceptor implements HandlerInterceptor{
         returnJson.setSuccess(true);
         returnJson.setMessage("登录验证成功");
         
-        //更新token的时间
+        //更新token以及token的时间
         String newToken = Token.getToken();
-        Map<String, Long> newMap = new HashMap<>();
-        newMap.put(newToken, new Timestamp().getDateTime());
-        session.setAttribute("token", newMap);
+        session.setAttribute(userId, newToken + "," + new Timestamp().getDateTime());
         //更新Token，防止重复提交
         response.setHeader("token", newToken);
         
