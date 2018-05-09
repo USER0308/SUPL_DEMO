@@ -1,7 +1,6 @@
 package com.formssi.service.impl;
 
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,12 +28,12 @@ public class FileServiceImpl implements FileService {
 	}
 
 	@Override
-	@Transactional
+	@Transactional(rollbackFor={RuntimeException.class, Exception.class})
 	public void add(ShareFile shareFile) throws Exception {
 		fileDao.add(shareFile);
 		try {
 			FileShareService.UploadFile(shareFile);
-		} catch (InterruptedException | ExecutionException e) {
+		} catch (Exception e) {
 			logger.error("Upload File to blockchain filed!!");
 			throw new Exception("add file to blockchain made a exception!");
 		}

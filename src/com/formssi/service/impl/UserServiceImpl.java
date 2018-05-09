@@ -1,7 +1,5 @@
 package com.formssi.service.impl;
 
-import java.util.concurrent.ExecutionException;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,12 +20,12 @@ public class UserServiceImpl implements UserService {
 	@Autowired
 	private UserDao userDao;
 	
-	@Transactional
+	@Transactional(rollbackFor={RuntimeException.class, Exception.class})
 	public void add(User user) throws Exception {
 		userDao.add(user);
 		try {
 			FileShareService.addUser(user);
-		} catch (InterruptedException | ExecutionException e) {
+		} catch (Exception e) {
 			logger.error("addUser to blockchain filed!!");
 			throw new Exception("add user to blockchain made a exception!");
 		}

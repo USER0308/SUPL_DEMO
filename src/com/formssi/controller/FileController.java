@@ -15,7 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.formssi.entity.ReturnJson;
 import com.formssi.entity.ShareFile;
-import com.formssi.service.impl.FileServiceImpl;
+import com.formssi.service.FileService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
@@ -26,7 +26,7 @@ import utils.Utils;
 public class FileController {
 	
 	@Autowired
-	private FileServiceImpl fileService;
+	private FileService fileService;
  
 	@RequestMapping(value = "/uploadFile", produces = "application/json;charset=UTF-8")
 	@ResponseBody

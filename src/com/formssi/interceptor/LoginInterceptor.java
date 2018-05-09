@@ -61,6 +61,14 @@ public class LoginInterceptor implements HandlerInterceptor{
             return true;
         }
         
+        //说明是登出请求，无需拦截
+        if(request.getRequestURI().indexOf("logout") != -1) {
+        	returnJson.setSuccess(true);
+            returnJson.setMessage("登出请求成功");
+            
+            return true;
+        }
+        
         String token = request.getHeader("token");
         String userIdForUploadFile = request.getParameter("userId");
         String data = request.getParameter("data");
