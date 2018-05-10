@@ -21,7 +21,6 @@ import com.formssi.service.UserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
-import utils.RSAUtils;
 import utils.Utils;
 
 @Controller
@@ -41,51 +40,35 @@ public class FileController {
 		
 		String documentFileName = file.getOriginalFilename();
     	String extension = documentFileName.substring(documentFileName.lastIndexOf("."));//获取文件后缀
+    	String path=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"\\files\\";//获取要写入的文件路径
+    	System.out.println(path);
     	
-    	ShareFile shareFile = new ShareFile();
-    	String fileId = request.getParameter("fileId");
-    	shareFile.setFileId(fileId);
-//    	shareFile.setFileAddr(request.getParameter("fileAddr"));
-//    	shareFile.setPubKeyToSymkey(request.getParameter("pubKeyToSymkey"));
-    	shareFile.setAllowDep(request.getParameter("allowDep"));
-    	shareFile.setAllowRank(Integer.parseInt(request.getParameter("allowRank")));
-    	shareFile.setDepartment(Integer.parseInt(request.getParameter("department")));
-    	shareFile.setDescription(request.getParameter("description"));
-    	shareFile.setUserId(request.getParameter("userId"));
-    	
-    	
-    	String baseFilePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"\\files\\uploadFiles\\";//获取要写入的文件路径
-    	String keyFilePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"\\files\\keys\\";		//拼公钥的地址
-    	System.out.println(baseFilePath);
-    	File upfile=new File(baseFilePath);
-		if(!upfile.exists()  && !upfile.isDirectory()) {
-			upfile.mkdirs();
-		}
-		
-    	String upFileName = baseFilePath+fileId+extension;//拼装文件路径和名字
-    	System.out.println(upFileName);
+    	String fileName = path+String.valueOf(System.currentTimeMillis()) + extension;//拼装文件路径和名字
+    	System.out.println(fileName);
         
-    	try {
-			shareFile.setFileAddr(new String(RSAUtils.encryptByPublicKey(upFileName.getBytes(),Utils.fileRead(keyFilePath+shareFile.getUserId()+"PUBKEY"))));
-		} catch (Exception e2) {
-			e2.printStackTrace();
-		}
-    	
     	ReturnJson returnJson = new ReturnJson();
     	
     	try {
     		//从request中获取上传的文件，然后写入到目标文件中
-			file.transferTo(new File(upFileName));
-			//TODO 加密文件
-			shareFile.setPubKeyToSymkey("");
-			
+			file.transferTo(new File(fileName));
 		}  catch (Exception e1) {
 			returnJson.setSuccess(false);
 			returnJson.setMessage("文件上传失败！");
 			return returnJson.toJSON();
 		}
-
-    	if (null == shareFile || Utils.stringIsNull(fileId) ) {
+    	
+    	ShareFile shareFile = new ShareFile();
+    	String fileId = request.getParameter("fileId");
+    	shareFile.setFileId(fileId);
+    	shareFile.setFileAddr(request.getParameter("fileAddr"));
+    	shareFile.setPubKeyToSymkey(request.getParameter("pubKeyToSymkey"));
+    	shareFile.setAllowDep(request.getParameter("allowDep"));
+    	shareFile.setAllowRank(Integer.parseInt(request.getParameter("allowRank")));
+    	shareFile.setDepartment(Integer.parseInt(request.getParameter("department")));
+    	shareFile.setDescription(request.getParameter("description"));
+    	shareFile.setUserId(request.getParameter("userId"));
+		
+		if (null == shareFile || Utils.stringIsNull(fileId) ) {
 			returnJson.setSuccess(false);
 			returnJson.setMessage("文件号不能为空！");
 			return returnJson.toJSON();
