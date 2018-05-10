@@ -42,8 +42,15 @@ public class FileController {
 		String documentFileName = file.getOriginalFilename();
     	String extension = documentFileName.substring(documentFileName.lastIndexOf("."));//获取文件后缀
     	
+    	ReturnJson returnJson = new ReturnJson();
     	ShareFile shareFile = new ShareFile();
     	String fileId = request.getParameter("fileId");
+    	
+    	if (null == shareFile || Utils.stringIsNull(fileId) ) {
+			returnJson.setSuccess(false);
+			returnJson.setMessage("文件号不能为空！");
+			return returnJson.toJSON();
+		}
     	shareFile.setFileId(fileId);
 //    	shareFile.setFileAddr(request.getParameter("fileAddr"));
 //    	shareFile.setPubKeyToSymkey(request.getParameter("pubKeyToSymkey"));
@@ -53,9 +60,8 @@ public class FileController {
     	shareFile.setDescription(request.getParameter("description"));
     	shareFile.setUserId(request.getParameter("userId"));
     	
-    	
     	String baseFilePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"\\files\\uploadFiles\\";//获取要写入的文件路径
-    	String keyFilePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"\\files\\keys\\";		//拼公钥的地址
+//    	String keyFilePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"\\files\\keys\\";		//拼公钥的地址
     	System.out.println(baseFilePath);
     	File upfile=new File(baseFilePath);
 		if(!upfile.exists()  && !upfile.isDirectory()) {
@@ -65,33 +71,17 @@ public class FileController {
     	String upFileName = baseFilePath+fileId+extension;//拼装文件路径和名字
     	System.out.println(upFileName);
         
-    	try {
-			shareFile.setFileAddr(new String(RSAUtils.encryptByPublicKey(upFileName.getBytes(),Utils.fileRead(keyFilePath+shareFile.getUserId()+"PUBKEY"))));
-		} catch (Exception e2) {
-			e2.printStackTrace();
-		}
+//    	try {
+//			shareFile.setFileAddr(new String(RSAUtils.encryptByPublicKey(upFileName.getBytes(),Utils.fileRead(keyFilePath+shareFile.getUserId()+"PUBKEY"))));
+//		} catch (Exception e2) {
+//			e2.printStackTrace();
+//		}
     	
-    	ReturnJson returnJson = new ReturnJson();
-    	
-    	try {
-    		//从request中获取上传的文件，然后写入到目标文件中
+		try {
+			//从request中获取上传的文件，然后写入到目标文件中
 			file.transferTo(new File(upFileName));
 			//TODO 加密文件
 			shareFile.setPubKeyToSymkey("");
-			
-		}  catch (Exception e1) {
-			returnJson.setSuccess(false);
-			returnJson.setMessage("文件上传失败！");
-			return returnJson.toJSON();
-		}
-
-    	if (null == shareFile || Utils.stringIsNull(fileId) ) {
-			returnJson.setSuccess(false);
-			returnJson.setMessage("文件号不能为空！");
-			return returnJson.toJSON();
-		}
-		
-		try {
 			fileService.add(shareFile,upFileName);
 			returnJson.setSuccess(true);
 			returnJson.setMessage("上传文件成功！");
