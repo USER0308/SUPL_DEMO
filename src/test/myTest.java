@@ -1,25 +1,134 @@
 package test;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import org.bouncycastle.crypto.tls.UseSRTPData;
-import org.springframework.beans.factory.annotation.Autowired;
+import java.util.Base64;
+import java.util.Map;
+
+import utils.RSAUtils;
+import utils.Utils;
 
 
 public class myTest {
 //	static Logger logger = LoggerFactory.getLogger(query.class);
 //	static private final List<String> TRAN_LATESTSTATE_LIST= Arrays.asList("U","C");
-
-	
-	
 	public static void main(String[] args) throws Exception{
+
+		
+		
+		String basePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"files/keys/";//获取要写入的文件路径
+		System.out.println("basePath==>"+basePath);
+		File file=new File(basePath);
+		if(!file.exists()  && !file.isDirectory()) {
+			file.mkdirs();
+		}
+		String pubKeyFileName=basePath+"430224196501014127"+"PUBKEY";
+		String priKeyFileName=basePath+"430224196501014127"+"PRIKEY";
+		System.out.println("pubKeyFileName==>"+pubKeyFileName);
+		Map<String, Object> keyMap=RSAUtils.genKeyPair();
+		
+		System.out.println(RSAUtils.getPublicKey(keyMap));
+		
+		RSAUtils.keyFiles(keyMap,pubKeyFileName,priKeyFileName);
+		String PUBKEY=Utils.fileRead(pubKeyFileName);
+		System.out.println(PUBKEY);
+		
+		String message="my";
+		byte[] encryMessage=RSAUtils.encryptByPublicKey(message.getBytes(),PUBKEY);
 		
 		
 		
 		
 		
+//		String sss=new String(Base64.getEncoder().encode(encryMessage));
+		String sss=new String(encryMessage);
+		System.out.println(encryMessage);
+		
+		String privateKey = Utils.fileRead(priKeyFileName);
+		
+		System.out.println(RSAUtils.getPrivateKey(keyMap));
+//		String resultMessage=new String(RSAUtils.decryptByPrivateKey(Base64.getDecoder().decode(sss.getBytes()), privateKey));
+		String resultMessage=new String(RSAUtils.decryptByPrivateKey(sss.getBytes(), privateKey));
+		
+		System.out.println(resultMessage);
+		
+		
+		
+//		String path=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"\\files\\";//获取要写入的文件路径
+//		String path1=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"\\files\\";//获取要写入的文件路径
+//		System.out.println(path);
+//		RSAUtils.keyFiles(RSAUtils.genKeyPair(),path,path1);
+		
+		
+//		FileShareService.initObj();
+//		
+//		User user = new User();
+//		user.setUserId("430224196501014127");
+//		user.setUserName("test");
+//		user.setPassword("123");
+//		user.setPubKey("this is a test");
+//		user.setRank(6);
+//		user.setDepartment(3);
+//		user.setCreateTime("2018-05-04 14:46:33");
+//		user.setUpdateTime("2018-05-04 14:46:33");
+//		System.out.println(FileShareService.addUser(user));
+		
+		
+//		ShareFile sFile=new ShareFile();
+//		sFile.setFileId("thisIsthefileId");
+//		sFile.setFileAddr("addr1");
+//		sFile.setPubKeyToSymkey("test");
+//		sFile.setAllowRank(10);
+//		sFile.setAllowDep("1,2,3,4");
+//		sFile.setDescription("this is a description");
+//		sFile.setUploadTime(new Timestamp(System.currentTimeMillis()));
+//		sFile.setUserId("430224196501014127");
+//		sFile.setDepartment(4);
+//		System.out.println(FileShareService.UploadFile(sFile));
+		
+		
+		
+		
+		
+		
+//		FileReq fReq=new FileReq();
+//		fReq.setUserId("430224196501014127");
+//		StringBuffer reqId=new StringBuffer("REQ");
+//		reqId.append(fReq.getUserId()+System.currentTimeMillis());
+//		fReq.setRequestId(reqId.toString());
+//		fReq.setFileId("thisIsthefileId");
+//		fReq.setRequestTime(Utils.getCurrentDate());
+//		System.out.println(fReq.toString());
+//		System.out.println(FileShareService.RequestFile(fReq));
+		
+		
+//		ShareFile sFile=new ShareFile();
+//		sFile.setUserId("430224196501014126");
+//		sFile.setAllowRank(1);
+//		sFile.setAllowDep("2,3,4,5");
+//		
+//		FileShareService.UploadFile(sFile);
+		
+		
+		
+		
+		
+//		FileShareService.queryBlockNumber();
+		
+		
+//		User user = new User();
+//		user.setUserId("430224196501014126");
+//		user.setUserName("邓杰瑞");
+//		user.setPassword("123");
+//		user.setPubKey("this is a test");
+//		user.setRank(5);
+//		user.setDepartment(3);
+//		user.setCreateTime("2018-05-04 06:45:58");
+//		user.setUpdateTime("2018-05-04 06:45:58");
+//		System.out.println(FileShareService.addUser(user));
+		
+		
+		
+//		Map<String, Object> keymap=utils.RSAUtils.genKeyPair();
 		
 //		String path = Thread.currentThread().getContextClassLoader().getResource("").toString();
 //		String subPath = path.substring(5, path.length());

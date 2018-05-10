@@ -1,27 +1,27 @@
-package com.formssi.controller;
-import java.io.File;
-import java.math.BigInteger;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.multipart.MultipartFile;
-
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-//import com.formssi.entity.Transaction;
-import com.formssi.service.IOUService;
-
-import utils.Utils;
-
-
-@Controller
-public class TranController {
+//package com.formssi.controller;
+//import java.io.File;
+//import java.math.BigInteger;
+//
+//import javax.servlet.http.HttpServletRequest;
+//import javax.servlet.http.HttpServletResponse;
+//
+//import org.springframework.stereotype.Controller;
+//import org.springframework.web.bind.annotation.RequestMapping;
+//import org.springframework.web.bind.annotation.RequestParam;
+//import org.springframework.web.bind.annotation.ResponseBody;
+//import org.springframework.web.multipart.MultipartFile;
+//
+//import com.alibaba.fastjson.JSON;
+//import com.alibaba.fastjson.JSONArray;
+//import com.alibaba.fastjson.JSONObject;
+////import com.formssi.entity.Transaction;
+//import com.formssi.service.IOUService;
+//
+//import utils.Utils;
+//
+//
+//@Controller
+//public class TranController {
     
 //    @RequestMapping(value = "/getTranList", produces = "application/json;charset=UTF-8")
 //    @ResponseBody
@@ -108,4 +108,4 @@ public class TranController {
 //    }
     
 
-}
+//}

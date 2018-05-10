@@ -159,7 +159,8 @@ public class FileShareService {
 	//Y
 	public static String addUser(User user) throws InterruptedException, ExecutionException{
 		int contractId = choiceContract(user.getUserId());//通过身份证号码来选择哪个合约
-		
+		System.out.println(contractListOfObservable.size());
+//		FileInfo testList=contractListOfObservable.get(contractId);
 		TransactionReceipt receipt = contractListOfObservable.get(contractId).addUser(new Utf8String(user.getUserId()), 
 				new Utf8String(user.getPubKey()), new Int256(user.getRank()), new Utf8String(Integer.toString(user.getDepartment())), 
 				new Utf8String(user.getCreateTime()), new Utf8String(user.getUpdateTime())).get();

@@ -1,7 +1,6 @@
 package utils;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileWriter;
 import java.security.Key;
 import java.security.KeyFactory;
@@ -14,6 +13,7 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -147,7 +147,8 @@ public class RSAUtils {
      */
     public static byte[] decryptByPrivateKey(byte[] encryptedData, String privateKey)
             throws Exception {
-        byte[] keyBytes = Base64Utils.decode(privateKey);
+    	encryptedData=Base64.getDecoder().decode(encryptedData);	//字符串型密文转码成BASE64字符串
+        byte[] keyBytes = Base64Utils.decode(privateKey);			//BASE64-->二进制
         PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(keyBytes);
         KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
         Key privateK = keyFactory.generatePrivate(pkcs8KeySpec);
@@ -250,7 +251,7 @@ public class RSAUtils {
         }
         byte[] encryptedData = out.toByteArray();
         out.close();
-        return encryptedData;
+        return Base64.getEncoder().encode(encryptedData); 		//密文转换成base64编码
     }
 
     /**
