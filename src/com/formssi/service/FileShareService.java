@@ -8,7 +8,6 @@ import java.security.NoSuchProviderException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-
 import org.bcos.channel.client.Service;
 import org.bcos.channel.handler.ChannelConnections;
 import org.bcos.web3j.abi.datatypes.Utf8String;
@@ -17,7 +16,6 @@ import org.bcos.web3j.crypto.CipherException;
 import org.bcos.web3j.crypto.Credentials;
 import org.bcos.web3j.crypto.WalletUtils;
 import org.bcos.web3j.protocol.Web3j;
-import org.bcos.web3j.protocol.core.DefaultBlockParameterName;
 import org.bcos.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.bcos.web3j.protocol.http.HttpService;
 import org.bcos.web3j.protocol.parity.Parity;
@@ -26,15 +24,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Controller;
-
-import com.alibaba.fastjson.JSONObject;
 import com.formssi.entity.FileReq;
 import com.formssi.entity.FileRes;
 import com.formssi.entity.ShareFile;
 import com.formssi.entity.User;
-
 import exception.initConfigException;
-import rx.Observable;
 import utils.PropertiesUtil;
 import utils.Utils;
 import wrapper.FileInfo;
@@ -159,7 +153,8 @@ public class FileShareService {
 	//Y
 	public static String addUser(User user) throws InterruptedException, ExecutionException{
 		int contractId = choiceContract(user.getUserId());//通过身份证号码来选择哪个合约
-		
+		System.out.println(contractListOfObservable.size());
+//		FileInfo testList=contractListOfObservable.get(contractId);
 		TransactionReceipt receipt = contractListOfObservable.get(contractId).addUser(new Utf8String(user.getUserId()), 
 				new Utf8String(user.getPubKey()), new Int256(user.getRank()), new Utf8String(Integer.toString(user.getDepartment())), 
 				new Utf8String(user.getCreateTime()), new Utf8String(user.getUpdateTime())).get();
@@ -211,47 +206,6 @@ public class FileShareService {
 		List<ResponseFileEventEventResponse> responses = contractListOfObservable.get(contractId).getResponseFileEventEvents(receipt);
 		String result = responses.get(0).info.toString();
 		return result;
-	}
-	
-	public static Observable<RequestFileEventEventResponse> observeReqEvent(int contractId) {
-		
-		Observable<RequestFileEventEventResponse> reqObservable = contractListOfObservable
-				.get(contractId).requestFileEventEventObservable(DefaultBlockParameterName.EARLIEST, DefaultBlockParameterName.LATEST);
-		reqObservable.subscribe((response)->{
-			logger.info("\n\n----------RequestSucceedEvent---------");
-			logger.info(response.info.getValue());
-			JSONObject resInfo = JSONObject.parseObject(response.info.getValue().toString());
-			
-			if (response.state.getValue().equals("1")) {
-				try {
-					
-					String PubKeyToSymkey = resInfo.getString("PubKeyToSymkey");
-					String pubKey = resInfo.getString("pubKey");
-					String fileAddr = resInfo.getString("fileAddr");
-					//私钥解密公共密钥PubKeyToSymkey和文件地址fileAddr 并用公钥pubKey加密公共密钥和文件地址fileAddr
-					
-					TransactionReceipt receipt = contractListOfObservable.get(contractId).ResponseFile(new Utf8String(resInfo.getString("requestId").replace("REQ", "RES")), new Utf8String(resInfo.getString("requestId")), new Utf8String(resInfo.getString("fileId")), new Utf8String(resInfo.getString("PubKeyToSymkey")), new Utf8String(resInfo.getString("fileAddr"))).get();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-			}else {
-				logger.info(response.toString());
-			}
-		});
-		return reqObservable;
-	}
-	
-	public static Observable<ResponseFileEventEventResponse> observeResRvent(int contractId) {
-		
-		Observable<ResponseFileEventEventResponse> resObservable = contractListOfObservable
-				.get(contractId).responseFileEventEventObservable(DefaultBlockParameterName.EARLIEST, DefaultBlockParameterName.LATEST);
-		resObservable.subscribe((response)->{
-			logger.info("\n\n----------ResponseSucceedEvent---------");
-			logger.info(response.info.getValue());
-			
-		});
-		return resObservable;
 	}
 	
 //	public static String getUserByPage(ShareFile sFile) throws InterruptedException, ExecutionException{
