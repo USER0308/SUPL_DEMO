@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.formssi.entity.ReturnJson;
 import com.formssi.entity.User;
-import com.formssi.service.impl.UserServiceImpl;
+import com.formssi.service.UserService;
 import com.sun.jmx.snmp.Timestamp;
 
 import utils.MD5Util;
@@ -23,7 +23,7 @@ import utils.Utils;
 public class UserController {
 	
 	@Autowired
-	private UserServiceImpl userService;
+	private UserService userService;
 	
 	@RequestMapping(value = "/login", produces = "application/json;charset=UTF-8")
 	@ResponseBody
