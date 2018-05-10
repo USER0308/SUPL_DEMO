@@ -14,8 +14,11 @@
             <if test="department!=null and department!=''">
                 and upload_dep = #{department}
             </if>
-            <if test="userId!=null and userId!=''">
-                and upload_user_id = #{userId}
+            <if test="allowRank!=null and allowRank!=''">
+                <![CDATA[and allow_rank >= ${allowRank}]]>
+            </if>
+            <if test="allowDep!=null and allowDep!=''">
+                and FIND_IN_SET(${allowDep},allow_dep)
             </if>
         </where>
     </sql>

@@ -15,7 +15,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.formssi.entity.ReturnJson;
 import com.formssi.entity.ShareFile;
+import com.formssi.entity.User;
 import com.formssi.service.FileService;
+import com.formssi.service.UserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
@@ -27,6 +29,9 @@ public class FileController {
 	
 	@Autowired
 	private FileService fileService;
+	
+	@Autowired
+	private UserService userService;
  
 	@RequestMapping(value = "/uploadFile", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -153,13 +158,18 @@ public class FileController {
 		
 		ReturnJson returnJson = new ReturnJson();
 		
-		if (null == shareFile ) {
+		if (null == shareFile || Utils.stringIsNull(shareFile.getUserId()) ) {
 			returnJson.setSuccess(false);
 			returnJson.setMessage("查询条件不存在！");
 			return returnJson.toJSON();
 		}
 		
 		try {
+			//当前登录人只允许查询出允许当前登录人查询的信息（当前登录人的军衔和部门在文件字段里允许的军衔和允许的部门里的文件查询出来）
+			User user = userService.getById(shareFile.getUserId());
+			shareFile.setAllowRank(user.getRank());
+			shareFile.setAllowDep(String.valueOf(user.getDepartment()));
+			
 			//从第一条开始 每页查询五条数据
 	        PageHelper.startPage(shareFile.getPageNum(), shareFile.getPageSize());
 	        List<ShareFile> list = fileService.queryAll(shareFile);
