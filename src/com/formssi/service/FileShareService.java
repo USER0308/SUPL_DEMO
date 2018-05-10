@@ -35,6 +35,7 @@ import wrapper.FileInfo;
 import wrapper.FileInfo.NewFileEventResponse;
 import wrapper.FileInfo.NewUserEventResponse;
 import wrapper.FileInfo.RequestFileEventEventResponse;
+import wrapper.FileInfo.ResponseFileEventEventResponse;
 
 @Controller
 public class FileShareService {
@@ -92,7 +93,6 @@ public class FileShareService {
     		String contractAddress = PropertiesUtil.readValue("contract.address."+i);
     		contractAddressList.add(contractAddress);
     		contractListOfObservable.add(FileInfo.load(contractAddress,transactionWeb3, credentials, gasPrice, gasLimit));
-    		
     	}
     	logger.info("初始化结束");
     	
@@ -153,7 +153,8 @@ public class FileShareService {
 	//Y
 	public static String addUser(User user) throws InterruptedException, ExecutionException{
 		int contractId = choiceContract(user.getUserId());//通过身份证号码来选择哪个合约
-		
+		System.out.println(contractListOfObservable.size());
+//		FileInfo testList=contractListOfObservable.get(contractId);
 		TransactionReceipt receipt = contractListOfObservable.get(contractId).addUser(new Utf8String(user.getUserId()), 
 				new Utf8String(user.getPubKey()), new Int256(user.getRank()), new Utf8String(Integer.toString(user.getDepartment())), 
 				new Utf8String(user.getCreateTime()), new Utf8String(user.getUpdateTime())).get();
@@ -202,8 +203,8 @@ public class FileShareService {
 		TransactionReceipt receipt = contractListOfObservable.get(contractId).ResponseFile(new Utf8String(fRes.getResponseId()), new Utf8String(fRes.getRequestId()), new Utf8String(fRes.getFileId()), new Utf8String(fRes.getPubKeyToSymkey()), new Utf8String(fRes.getFileAddr())).get();
 		logger.info("ResponseFile receipt transactionHash:{}",receipt.getTransactionHash());
 		
-		List<NewUserEventResponse> responses = contractListOfObservable.get(contractId).getNewUserEvents(receipt);
-		String result = responses.get(0)._json.toString();
+		List<ResponseFileEventEventResponse> responses = contractListOfObservable.get(contractId).getResponseFileEventEvents(receipt);
+		String result = responses.get(0).info.toString();
 		return result;
 	}
 	
