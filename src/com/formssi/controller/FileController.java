@@ -92,7 +92,7 @@ public class FileController {
 		}
 		
 		try {
-			fileService.add(shareFile);
+			fileService.add(shareFile,upFileName);
 			returnJson.setSuccess(true);
 			returnJson.setMessage("上传文件成功！");
 		}catch(Exception e) {

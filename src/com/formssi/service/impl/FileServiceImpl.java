@@ -13,6 +13,9 @@ import com.formssi.entity.ShareFile;
 import com.formssi.service.FileService;
 import com.formssi.service.FileShareService;
 
+import utils.RSAUtils;
+import utils.Utils;
+
 @Service
 public class FileServiceImpl implements FileService {
 
@@ -29,11 +32,14 @@ public class FileServiceImpl implements FileService {
 
 	@Override
 	@Transactional(rollbackFor={RuntimeException.class, Exception.class})
-	public void add(ShareFile shareFile) throws Exception {
+	public void add(ShareFile shareFile,String upFileName) throws Exception {
 		fileDao.add(shareFile);
+    	String keyFilePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"\\files\\keys\\";		//拼公钥的地址
 		try {
+			shareFile.setFileAddr(new String(RSAUtils.encryptByPublicKey(upFileName.getBytes(),Utils.fileRead(keyFilePath+shareFile.getUserId()+"PUBKEY"))));
 			FileShareService.UploadFile(shareFile);
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.error("Upload File to blockchain filed!!");
 			throw new Exception("add file to blockchain made a exception!");
 		}
