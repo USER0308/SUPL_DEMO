@@ -2,8 +2,6 @@ package com.formssi.interceptor;
 
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -14,7 +12,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
-import com.alibaba.fastjson.JSON;
 import com.formssi.entity.ReturnJson;
 import com.formssi.entity.User;
 import com.sun.jmx.snmp.Timestamp;
@@ -69,7 +66,7 @@ public class LoginInterceptor implements HandlerInterceptor{
             return true;
         }
         
-        String token = request.getHeader("token");
+        String token = request.getHeader("Access-Control-Request-Headers");
         String userIdForUploadFile = request.getParameter("userId");
         String data = request.getParameter("data");
         User userInput = User.parse(data);
