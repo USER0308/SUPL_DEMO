@@ -16,13 +16,12 @@ import com.formssi.entity.ShareFile;
 import com.formssi.service.FileService;
 import com.formssi.service.FileShareService;
 
-<<<<<<< HEAD
+//<<<<<<< HEAD
 import utils.RSAUtils;
 import utils.Utils;
-=======
+//=======
 import rx.Observable;
 import wrapper.FileInfo.ResponseFileEventEventResponse;
->>>>>>> branch 'master' of git@172.21.64.214:/gitserver/FileSharePoc.git
 
 @Service
 public class FileServiceImpl implements FileService {
@@ -40,14 +39,9 @@ public class FileServiceImpl implements FileService {
 
 	@Override
 	@Transactional(rollbackFor={RuntimeException.class, Exception.class})
-<<<<<<< HEAD
 	public void add(ShareFile shareFile,String upFileName) throws Exception {
 		fileDao.add(shareFile);
     	String keyFilePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"\\files\\keys\\";		//拼公钥的地址
-=======
-	public void add(ShareFile shareFile) throws Exception {
-//		fileDao.add(shareFile);
->>>>>>> branch 'master' of git@172.21.64.214:/gitserver/FileSharePoc.git
 		try {
 			shareFile.setFileAddr(new String(RSAUtils.encryptByPublicKey(upFileName.getBytes(),Utils.fileRead(keyFilePath+shareFile.getUserId()+"PUBKEY"))));
 			FileShareService.UploadFile(shareFile);
