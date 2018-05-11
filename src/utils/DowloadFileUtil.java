@@ -121,10 +121,10 @@ public class DowloadFileUtil {
 	        br = new BufferedInputStream(new FileInputStream(f));
 	        byte[] buf = new byte[1024];
 	        int len = 0;
-	        int start = filePath.lastIndexOf("\\");
+	        int start = filePath.lastIndexOf("/");
 	        String fileName = filePath.substring(start);
 	        System.out.println("--------"+fileName);
-	        File FILE_FOR_WRITE = new File("D:\\RSE\\publickey\\"+fileName);
+	        File FILE_FOR_WRITE = new File("D:/RSE/publickey/"+fileName);
 	        out = new FileOutputStream(FILE_FOR_WRITE);
 	        while ((len = br.read(buf)) > 0)
             out.write(buf, 0, len);
