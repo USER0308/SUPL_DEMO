@@ -60,7 +60,7 @@ public class FileController {
     	shareFile.setDescription(request.getParameter("description"));
     	shareFile.setUserId(request.getParameter("userId"));
     	
-    	String baseFilePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"\\files\\uploadFiles\\";//获取要写入的文件路径
+    	String baseFilePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"/files/uploadFiles/";//获取要写入的文件路径
 //    	String keyFilePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"\\files\\keys\\";		//拼公钥的地址
     	System.out.println(baseFilePath);
     	File upfile=new File(baseFilePath);

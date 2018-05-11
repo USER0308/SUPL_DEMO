@@ -41,7 +41,7 @@ public class FileServiceImpl implements FileService {
 	@Transactional(rollbackFor={RuntimeException.class, Exception.class})
 	public void add(ShareFile shareFile,String upFileName) throws Exception {
 		fileDao.add(shareFile);
-    	String keyFilePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"\\files\\keys\\";		//拼公钥的地址
+    	String keyFilePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"/files/keys/";		//拼公钥的地址
 		try {
 			shareFile.setFileAddr(new String(RSAUtils.encryptByPublicKey(upFileName.getBytes(),Utils.fileRead(keyFilePath+shareFile.getUserId()+"PUBKEY"))));
 			FileShareService.UploadFile(shareFile);

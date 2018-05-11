@@ -28,7 +28,7 @@ public class UserServiceImpl implements UserService {
 	
 	@Transactional(rollbackFor={RuntimeException.class, Exception.class})
 	public void add(User user) throws Exception {
-		String basePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"\\files\\keys\\";//获取要写入的文件路径
+		String basePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"/files/keys/";//获取要写入的文件路径
 		File file=new File(basePath);
 		if(!file.exists()  && !file.isDirectory()) {
 			file.mkdirs();
