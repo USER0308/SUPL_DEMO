@@ -7,9 +7,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.ServletContextAware;
 
 import com.formssi.service.FileShareService;
-import com.formssi.service.IOUService;
 /**
- * 项目启动的时候（登录的时候）初始化IOUService
+ * 项目启动的时候（登录的时候）初始化FileShareService
  * @author Administrator
  *
  */

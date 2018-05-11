@@ -7,7 +7,9 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Base64;
 import java.util.concurrent.ExecutionException;
+
 import org.bcos.channel.client.Service;
 import org.bcos.channel.handler.ChannelConnections;
 import org.bcos.web3j.abi.datatypes.Utf8String;
@@ -16,6 +18,7 @@ import org.bcos.web3j.crypto.CipherException;
 import org.bcos.web3j.crypto.Credentials;
 import org.bcos.web3j.crypto.WalletUtils;
 import org.bcos.web3j.protocol.Web3j;
+import org.bcos.web3j.protocol.core.DefaultBlockParameterName;
 import org.bcos.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.bcos.web3j.protocol.http.HttpService;
 import org.bcos.web3j.protocol.parity.Parity;
@@ -24,17 +27,24 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Controller;
+
+import com.alibaba.fastjson.JSONObject;
 import com.formssi.entity.FileReq;
 import com.formssi.entity.FileRes;
 import com.formssi.entity.ShareFile;
 import com.formssi.entity.User;
+
 import exception.initConfigException;
+import rx.Observable;
+import utils.DowloadFileUtil;
 import utils.PropertiesUtil;
+import utils.RSAUtils;
 import utils.Utils;
 import wrapper.FileInfo;
 import wrapper.FileInfo.NewFileEventResponse;
 import wrapper.FileInfo.NewUserEventResponse;
 import wrapper.FileInfo.RequestFileEventEventResponse;
+import wrapper.FileInfo.ResponseFileEventEventResponse;
 
 @Controller
 public class FileShareService {
@@ -92,7 +102,6 @@ public class FileShareService {
     		String contractAddress = PropertiesUtil.readValue("contract.address."+i);
     		contractAddressList.add(contractAddress);
     		contractListOfObservable.add(FileInfo.load(contractAddress,transactionWeb3, credentials, gasPrice, gasLimit));
-    		
     	}
     	logger.info("初始化结束");
     	
@@ -153,7 +162,8 @@ public class FileShareService {
 	//Y
 	public static String addUser(User user) throws InterruptedException, ExecutionException{
 		int contractId = choiceContract(user.getUserId());//通过身份证号码来选择哪个合约
-		
+		System.out.println(contractListOfObservable.size());
+//		FileInfo testList=contractListOfObservable.get(contractId);
 		TransactionReceipt receipt = contractListOfObservable.get(contractId).addUser(new Utf8String(user.getUserId()), 
 				new Utf8String(user.getPubKey()), new Int256(user.getRank()), new Utf8String(Integer.toString(user.getDepartment())), 
 				new Utf8String(user.getCreateTime()), new Utf8String(user.getUpdateTime())).get();
@@ -173,7 +183,7 @@ public class FileShareService {
 
 		TransactionReceipt receipt = contractListOfObservable.get(contractId).UploadFile(new Utf8String(sf.getFileId()),
 				new Utf8String(sf.getFileAddr()),new Utf8String(sf.getPubKeyToSymkey()), new Utf8String(strategy.toString()),
-				new Utf8String(sf.getDescription()), new Utf8String(Utils.sdf(sf.getUploadTime())),new Utf8String(sf.getUserId()),
+				new Utf8String(sf.getDescription()), new Utf8String(Utils.sdf(System.currentTimeMillis())),new Utf8String(sf.getUserId()),
 				new Utf8String(Integer.toString(sf.getDepartment()))).get();
 		logger.info("UploadFile receipt transactionHash:{}",receipt.getTransactionHash());
 		
@@ -202,9 +212,80 @@ public class FileShareService {
 		TransactionReceipt receipt = contractListOfObservable.get(contractId).ResponseFile(new Utf8String(fRes.getResponseId()), new Utf8String(fRes.getRequestId()), new Utf8String(fRes.getFileId()), new Utf8String(fRes.getPubKeyToSymkey()), new Utf8String(fRes.getFileAddr())).get();
 		logger.info("ResponseFile receipt transactionHash:{}",receipt.getTransactionHash());
 		
-		List<NewUserEventResponse> responses = contractListOfObservable.get(contractId).getNewUserEvents(receipt);
-		String result = responses.get(0)._json.toString();
+		List<ResponseFileEventEventResponse> responses = contractListOfObservable.get(contractId).getResponseFileEventEvents(receipt);
+		String result = responses.get(0).info.toString();
 		return result;
+	}
+	
+	public static Observable<RequestFileEventEventResponse> observeReqEvent(int contractId) {
+		
+		Observable<RequestFileEventEventResponse> reqObservable = contractListOfObservable
+				.get(contractId).requestFileEventEventObservable(DefaultBlockParameterName.EARLIEST, DefaultBlockParameterName.LATEST);
+		reqObservable.subscribe((response)->{
+			logger.info("\n\n----------RequestSucceedEvent---------");
+			logger.info(response.info.getValue());
+			JSONObject resInfo = JSONObject.parseObject(response.info.getValue().toString());
+			
+			if (response.state.getValue().equals("1")) {
+				try {
+					
+					String PubKeyToSymkey = resInfo.getString("PubKeyToSymkey");
+					String pubKey = resInfo.getString("pubKey");
+					String fileAddr = resInfo.getString("fileAddr");
+					//私钥解密公共密钥PubKeyToSymkey和文件地址fileAddr 并用公钥pubKey加密公共密钥和文件地址fileAddr
+					String basePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"/files/keys/"+resInfo.getString("userId")+"PRIKEY";//私钥路径
+					System.out.println("---------basePath:"+basePath);
+					
+					String privateKey = Utils.fileRead(basePath);//读取获取私钥（base64格式）
+					byte[] dePubKeyToSymkey = RSAUtils.decryptByPrivateKey(PubKeyToSymkey.getBytes(), privateKey);
+					String enPubKeyToSymkey = new String(Base64.getEncoder().encode(RSAUtils.encryptByPublicKey(dePubKeyToSymkey, pubKey))) ;
+					
+					byte[] deFileAddr = RSAUtils.decryptByPrivateKey(fileAddr.getBytes(), privateKey);
+					String enFileAddr = new String(Base64.getEncoder().encode(RSAUtils.encryptByPublicKey(deFileAddr, pubKey)));
+					//不用加密做测试
+//					String enPubKeyToSymkey = "test";
+//					String enFileAddr = "D:/RSE/publickey/publickey.txt";
+					
+					contractListOfObservable.get(contractId).ResponseFile(new Utf8String(resInfo.getString("_requestId").replace("REQ", "RES")), new Utf8String(resInfo.getString("_requestId")), new Utf8String(resInfo.getString("fileId")), new Utf8String(enPubKeyToSymkey), new Utf8String(enFileAddr)).get();
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}else {
+				logger.info(response.toString());
+			}
+		});
+		return reqObservable;
+	}
+	
+	public static Observable<ResponseFileEventEventResponse> observeResRvent(int contractId) {
+		
+		Observable<ResponseFileEventEventResponse> resObservable = contractListOfObservable
+				.get(contractId).responseFileEventEventObservable(DefaultBlockParameterName.EARLIEST, DefaultBlockParameterName.LATEST);
+		resObservable.subscribe((response)->{
+			logger.info("\n\n----------ResponseSucceedEvent---------");
+			logger.info(""+response);
+			logger.info(response.info.getValue());
+			JSONObject resInfo = JSONObject.parseObject(response.info.getValue().toString());
+			
+			String PubKeyToSymkey = JSONObject.parseObject(resInfo.getString("response")).getString("_PubKeyToSymkey");
+			String fileAddr = JSONObject.parseObject(resInfo.getString("response")).getString("_fileAddr");
+			logger.info(fileAddr);
+			//不用加密做测试
+			String basePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"/files/keys/"+resInfo.getString("userId")+"PRIKEY";//私钥路径
+			try {
+				String privateKey = Utils.fileRead(basePath);//读取获取私钥（base64格式）
+//				//私钥解密PubKeyToSymkey（被加密的公共密钥）和fileAddr（加密地址）
+				String dePubKeyToSymkey = new String(RSAUtils.decryptByPrivateKey(PubKeyToSymkey.getBytes(), privateKey));
+				String deFileAddr = new String(RSAUtils.decryptByPrivateKey(fileAddr.getBytes(), privateKey));
+				//用地址去下载文件
+				DowloadFileUtil.downLoad(deFileAddr);
+			} catch (Exception e) {
+				
+				e.printStackTrace();
+			}
+		});
+		return resObservable;
 	}
 	
 //	public static String getUserByPage(ShareFile sFile) throws InterruptedException, ExecutionException{
