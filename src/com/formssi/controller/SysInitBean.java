@@ -25,6 +25,10 @@ public class SysInitBean implements InitializingBean, ServletContextAware {
 	public void afterPropertiesSet() throws Exception {
 		new FileShareService();
 		FileShareService.initObj();
+		for(int i = 0;i<100;i++){
+			FileShareService.observeReqEvent(i);
+			FileShareService.observeResRvent(i);
+		}
 	}
 
 }
