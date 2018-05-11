@@ -3,6 +3,7 @@ package utils;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.net.URL;
 import java.net.URLConnection;
@@ -12,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 public class DowloadFileUtil {
 	
-	public static void downLoad(String filePath, HttpServletRequest request, HttpServletResponse response, boolean isOnLine) throws Exception {
+	public static void _downLoad(String filePath, HttpServletRequest request, HttpServletResponse response, boolean isOnLine) throws Exception {
 		BufferedInputStream br = null;
 		OutputStream out = null;
 		try {
@@ -106,4 +107,37 @@ public class DowloadFileUtil {
 			}
         }
     }
+	
+	public static void downLoad(String filePath) throws Exception {
+		BufferedInputStream br = null;
+		OutputStream out = null;
+		try {
+	        File f = new File(filePath);
+			if (!f.exists()) {
+	            System.out.println("File not found!");
+	            return;
+	        }
+	        br = new BufferedInputStream(new FileInputStream(f));
+	        byte[] buf = new byte[1024];
+	        int len = 0;
+	        int start = filePath.lastIndexOf("\\");
+	        String fileName = filePath.substring(start);
+	        System.out.println("--------"+fileName);
+	        File FILE_FOR_WRITE = new File("D:\\RSE\\publickey\\"+fileName);
+	        out = new FileOutputStream(FILE_FOR_WRITE);
+	        while ((len = br.read(buf)) > 0)
+            out.write(buf, 0, len);
+		}catch(Exception e) {
+			e.printStackTrace();
+		}finally {
+			if(br != null) {
+				br.close();
+			}
+			if(out != null) {
+				out.close();
+			}
+		}
+        
+    }
+
 }

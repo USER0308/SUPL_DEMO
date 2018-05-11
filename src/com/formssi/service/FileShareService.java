@@ -270,16 +270,15 @@ public class FileShareService {
 			
 			String basePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"\\files\\keys\\"+resInfo.getString("userId")+"PRIKEY";//私钥路径
 			try {
-				String privateKey = Utils.fileRead(basePath);
+				String privateKey = Utils.fileRead(basePath);//读取获取私钥（base64格式）
 				//私钥解密PubKeyToSymkey（被加密的公共密钥）和fileAddr（加密地址）
 				String dePubKeyToSymkey = new String(RSAUtils.decryptByPrivateKey(PubKeyToSymkey.getBytes(), privateKey));
 				String deFileAddr = new String(RSAUtils.decryptByPrivateKey(fileAddr.getBytes(), privateKey));
 				//用地址去下载文件
 				DowloadFileUtil.downLoad(deFileAddr);
 			} catch (Exception e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}//读取获取私钥（base64格式）
+			}
 		});
 		return resObservable;
 	}
