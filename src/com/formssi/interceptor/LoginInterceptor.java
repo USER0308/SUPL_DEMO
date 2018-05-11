@@ -9,19 +9,14 @@ import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
 import com.alibaba.fastjson.JSON;
 import com.formssi.entity.ReturnJson;
-import com.formssi.entity.User;
-import com.formssi.service.UserService;
 import com.sun.jmx.snmp.Timestamp;
 
 import utils.MySessionContext;
-import utils.Token;
-import utils.Utils;
 
 /**
  * 登录认证的拦截器
