@@ -56,9 +56,11 @@ public class FileController {
 //    	shareFile.setPubKeyToSymkey(request.getParameter("pubKeyToSymkey"));
     	shareFile.setAllowDep(request.getParameter("allowDep"));
     	shareFile.setAllowRank(Integer.parseInt(request.getParameter("allowRank")));
-    	shareFile.setDepartment(Integer.parseInt(request.getParameter("department")));
+    	String userId = request.getParameter("userId");
+    	User user = userService.getById(userId);
+    	shareFile.setDepartment(user.getDepartment());
     	shareFile.setDescription(request.getParameter("description"));
-    	shareFile.setUserId(request.getParameter("userId"));
+    	shareFile.setUserId(userId);
     	
     	String baseFilePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"/files/uploadFiles/";//获取要写入的文件路径
 //    	String keyFilePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"\\files\\keys\\";		//拼公钥的地址
