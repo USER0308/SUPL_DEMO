@@ -1,5 +1,8 @@
 package com.formssi.service.impl;
 
+import java.io.File;
+import java.util.Map;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +13,9 @@ import com.formssi.dao.UserDao;
 import com.formssi.entity.User;
 import com.formssi.service.FileShareService;
 import com.formssi.service.UserService;
+
+import utils.RSAUtils;
+import utils.Utils;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -22,13 +28,28 @@ public class UserServiceImpl implements UserService {
 	
 	@Transactional(rollbackFor={RuntimeException.class, Exception.class})
 	public void add(User user) throws Exception {
+		String basePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"/files/keys/";//获取要写入的文件路径
+		File file=new File(basePath);
+		if(!file.exists()  && !file.isDirectory()) {
+			file.mkdirs();
+		}
+		String pubKeyFileName=basePath+user.getUserId()+"PUBKEY";
 		userDao.add(user);
+		Map<String, Object> keyMap=RSAUtils.genKeyPair();
+		RSAUtils.keyFiles(keyMap,pubKeyFileName,basePath+user.getUserId()+"PRIKEY");
+		//创建用户时，如下三个字段不是页面传递过来的，需要服务端来创建并写入区块链但不需要写入数据库
+		user.setPubKey(RSAUtils.getPublicKey(keyMap));
+		user.setCreateTime(Utils.getCurrentDate());
+		user.setUpdateTime(user.getCreateTime());
 		try {
-			FileShareService.addUser(user);
+			String respJson=FileShareService.addUser(user);
+			logger.debug("addUser blockchain response:",respJson);
 		} catch (Exception e) {
+			e.printStackTrace();
 			logger.error("addUser to blockchain filed!!");
 			throw new Exception("add user to blockchain made a exception!");
 		}
+		
 	}
 
 	public User getById(String id) {
