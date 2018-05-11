@@ -277,6 +277,7 @@ public class FileShareService {
 				//用地址去下载文件
 				DowloadFileUtil.downLoad(deFileAddr);
 			} catch (Exception e) {
+				
 				e.printStackTrace();
 			}
 		});

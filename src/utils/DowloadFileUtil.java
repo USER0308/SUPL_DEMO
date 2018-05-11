@@ -28,6 +28,7 @@ public class DowloadFileUtil {
 	        
 	        String userAgent = request.getHeader("User-Agent"); 
 	        String fileName = null;
+	        
 	        // 针对IE或者以IE为内核的浏览器：  
 	        if (userAgent.contains("MSIE") || userAgent.contains("Trident")) {  
 	        	fileName = java.net.URLEncoder.encode(f.getName(), "UTF-8");  
