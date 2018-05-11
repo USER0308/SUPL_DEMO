@@ -137,6 +137,7 @@ public class DowloadFileUtil {
 			if(out != null) {
 				out.close();
 			}
+			System.out.println("文件下载成功");
 		}
         
     }
