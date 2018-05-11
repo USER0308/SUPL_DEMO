@@ -36,6 +36,7 @@ import com.formssi.entity.User;
 
 import exception.initConfigException;
 import rx.Observable;
+import utils.DowloadFileUtil;
 import utils.PropertiesUtil;
 import utils.RSAUtils;
 import utils.Utils;
@@ -274,6 +275,7 @@ public class FileShareService {
 				String dePubKeyToSymkey = new String(RSAUtils.decryptByPrivateKey(PubKeyToSymkey.getBytes(), privateKey));
 				String deFileAddr = new String(RSAUtils.decryptByPrivateKey(fileAddr.getBytes(), privateKey));
 				//用地址去下载文件
+				DowloadFileUtil.downLoad(deFileAddr);
 			} catch (Exception e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
