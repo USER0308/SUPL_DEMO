@@ -183,7 +183,7 @@ public class FileShareService {
 
 		TransactionReceipt receipt = contractListOfObservable.get(contractId).UploadFile(new Utf8String(sf.getFileId()),
 				new Utf8String(sf.getFileAddr()),new Utf8String(sf.getPubKeyToSymkey()), new Utf8String(strategy.toString()),
-				new Utf8String(sf.getDescription()), new Utf8String(Utils.sdf(sf.getUploadTime())),new Utf8String(sf.getUserId()),
+				new Utf8String(sf.getDescription()), new Utf8String(Utils.sdf(System.currentTimeMillis())),new Utf8String(sf.getUserId()),
 				new Utf8String(Integer.toString(sf.getDepartment()))).get();
 		logger.info("UploadFile receipt transactionHash:{}",receipt.getTransactionHash());
 		
