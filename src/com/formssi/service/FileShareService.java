@@ -7,6 +7,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Base64;
 import java.util.concurrent.ExecutionException;
 
 import org.bcos.channel.client.Service;
@@ -36,6 +37,7 @@ import com.formssi.entity.User;
 import exception.initConfigException;
 import rx.Observable;
 import utils.PropertiesUtil;
+import utils.RSAUtils;
 import utils.Utils;
 import wrapper.FileInfo;
 import wrapper.FileInfo.NewFileEventResponse;
@@ -230,8 +232,18 @@ public class FileShareService {
 					String pubKey = resInfo.getString("pubKey");
 					String fileAddr = resInfo.getString("fileAddr");
 					//私钥解密公共密钥PubKeyToSymkey和文件地址fileAddr 并用公钥pubKey加密公共密钥和文件地址fileAddr
+					String basePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"\\files\\keys\\"+resInfo.getString("userId")+"PRIKEY";//私钥路径
 					
-					TransactionReceipt receipt = contractListOfObservable.get(contractId).ResponseFile(new Utf8String(resInfo.getString("requestId").replace("REQ", "RES")), new Utf8String(resInfo.getString("requestId")), new Utf8String(resInfo.getString("fileId")), new Utf8String(resInfo.getString("PubKeyToSymkey")), new Utf8String(resInfo.getString("fileAddr"))).get();
+					String privateKey = Utils.fileRead(basePath);//读取获取私钥（base64格式）
+					byte[] dePubKeyToSymkey = RSAUtils.decryptByPrivateKey(PubKeyToSymkey.getBytes(), privateKey);
+					String enPubKeyToSymkey = new String(Base64.getEncoder().encode(RSAUtils.encryptByPublicKey(dePubKeyToSymkey, pubKey))) ;
+					
+					
+					byte[] deFileAddr = RSAUtils.decryptByPrivateKey(fileAddr.getBytes(), privateKey);
+					String enFileAddr = new String(Base64.getEncoder().encode(RSAUtils.encryptByPublicKey(deFileAddr, pubKey)));
+					
+					
+					contractListOfObservable.get(contractId).ResponseFile(new Utf8String(resInfo.getString("requestId").replace("REQ", "RES")), new Utf8String(resInfo.getString("requestId")), new Utf8String(resInfo.getString("fileId")), new Utf8String(enPubKeyToSymkey), new Utf8String(enFileAddr)).get();
 				} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -250,7 +262,22 @@ public class FileShareService {
 		resObservable.subscribe((response)->{
 			logger.info("\n\n----------ResponseSucceedEvent---------");
 			logger.info(response.info.getValue());
+			JSONObject resInfo = JSONObject.parseObject(response.info.getValue().toString());
 			
+			String PubKeyToSymkey = resInfo.getString("_PubKeyToSymkey");
+			String fileAddr = resInfo.getString("_fileAddr");
+			
+			String basePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"\\files\\keys\\"+resInfo.getString("userId")+"PRIKEY";//私钥路径
+			try {
+				String privateKey = Utils.fileRead(basePath);
+				//私钥解密PubKeyToSymkey（被加密的公共密钥）和fileAddr（加密地址）
+				String dePubKeyToSymkey = new String(RSAUtils.decryptByPrivateKey(PubKeyToSymkey.getBytes(), privateKey));
+				String deFileAddr = new String(RSAUtils.decryptByPrivateKey(fileAddr.getBytes(), privateKey));
+				//用地址去下载文件
+			} catch (Exception e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}//读取获取私钥（base64格式）
 		});
 		return resObservable;
 	}
