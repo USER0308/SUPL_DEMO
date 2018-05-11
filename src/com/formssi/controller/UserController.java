@@ -1,5 +1,6 @@
 package com.formssi.controller;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
@@ -9,12 +10,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.alibaba.fastjson.JSON;
 import com.formssi.entity.ReturnJson;
 import com.formssi.entity.User;
 import com.formssi.service.UserService;
 import com.sun.jmx.snmp.Timestamp;
 
 import utils.MD5Util;
+import utils.MySessionContext;
 import utils.Token;
 import utils.Utils;
 
@@ -27,7 +30,7 @@ public class UserController {
 	
 	@RequestMapping(value = "/login", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String login(@RequestParam("data") String date, HttpServletResponse response, HttpSession session) {
+	public String login(@RequestParam("data") String date, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		
 		User userInput = User.parse(date);
@@ -48,10 +51,14 @@ public class UserController {
 				returnJson.setMessage("登录成功！");
 				//登录成功返回token
 				String token = Token.getToken();
-				returnJson.setObj(token);
+				String sessionId = session.getId();
 				
 				//带时间的token存入session，便于拦截器失效校验--正规做法是token存入redis，设置失效时间，拦截器查询token与页面传过来的做比较校验。
-				session.setAttribute(user.getUserId(), token + "," + new Timestamp().getDateTime());
+				session.setAttribute(sessionId, token + "," + new Timestamp().getDateTime());
+				System.out.println("login sessionid: "+sessionId);
+				System.out.println("login token: "+session.getAttribute(sessionId));
+				
+				returnJson.setObj("{\"token\":\"" + token + "\",\"sessionId\":\""+session.getId()+"\"}");
 			}else {//其他情况一律登录失败
 				returnJson.setSuccess(false);
 				returnJson.setMessage("用户名或密码错误！");
@@ -67,13 +74,27 @@ public class UserController {
 	
 	@RequestMapping(value = "/logout", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String logout(@RequestParam("data") String date, HttpServletResponse response, HttpSession session) {
+	public String logout(@RequestParam("data") String date, HttpServletRequest request, HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
-		
-		User user = User.parse(date);
-		session.removeAttribute(user.getUserId());
-		
 		ReturnJson returnJson = new ReturnJson();
+		
+		String sessionId = request.getParameter("sessionId");
+        if(sessionId == null) {
+        	String data = request.getParameter("data");
+            sessionId = (String)JSON.parseObject(data).get("sessionId");
+        }
+
+        HttpSession session = MySessionContext.getSession(sessionId);
+        
+        if(session == null || session.getAttribute(sessionId) == null) {
+        	returnJson.setSuccess(false);
+            returnJson.setMessage("已登出");
+            
+            return returnJson.toJSON();
+        }
+		
+        MySessionContext.DelSession(session);
+		
 		returnJson.setSuccess(true);
 		returnJson.setMessage("登出成功！");
 

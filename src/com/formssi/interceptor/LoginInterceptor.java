@@ -9,13 +9,17 @@ import javax.servlet.http.HttpSession;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.ModelAndView;
 
+import com.alibaba.fastjson.JSON;
 import com.formssi.entity.ReturnJson;
 import com.formssi.entity.User;
+import com.formssi.service.UserService;
 import com.sun.jmx.snmp.Timestamp;
 
+import utils.MySessionContext;
 import utils.Token;
 import utils.Utils;
 
@@ -23,7 +27,7 @@ import utils.Utils;
  * 登录认证的拦截器
  */
 public class LoginInterceptor implements HandlerInterceptor{
-	
+
 	private Logger logger = LoggerFactory.getLogger(this.getClass());
 
     /**
@@ -47,7 +51,7 @@ public class LoginInterceptor implements HandlerInterceptor{
      */
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response,
                              Object handler) throws Exception {
-    	
+    	response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
         ReturnJson returnJson = new ReturnJson();
         
         //说明是登录请求，无需拦截
@@ -66,18 +70,10 @@ public class LoginInterceptor implements HandlerInterceptor{
             return true;
         }
         
-        String token = request.getHeader("Access-Control-Request-Headers");
-        String userIdForUploadFile = request.getParameter("userId");
-        String data = request.getParameter("data");
-        User userInput = User.parse(data);
-        String userIdForOther = userInput.getUserId();
-        String userId = null;
-        
-        if(!Utils.stringIsNull(userIdForUploadFile)) {
-        	userId = userIdForUploadFile;
-        }
-        if(!Utils.stringIsNull(userIdForOther)) {
-        	userId = userIdForOther;
+        String token = request.getParameter("token");
+        if(token == null) {
+        	String data = request.getParameter("data");
+        	token = (String)JSON.parseObject(data).get("token");
         }
 
         if(token == null){
@@ -90,10 +86,15 @@ public class LoginInterceptor implements HandlerInterceptor{
             return false;
         }
         
-        HttpSession session = request.getSession();
-        String tokenAnddateTime = (String)session.getAttribute(userId);
+        String sessionId = request.getParameter("sessionId");
+        if(sessionId == null) {
+        	String data = request.getParameter("data");
+            sessionId = (String)JSON.parseObject(data).get("sessionId");
+        }
+
+        HttpSession session = MySessionContext.getSession(sessionId);
         
-        if(tokenAnddateTime == null) {
+        if(session == null || session.getAttribute(sessionId) == null) {
         	returnJson.setSuccess(false);
             returnJson.setMessage("登录验证失败，已登出");
             
@@ -101,6 +102,8 @@ public class LoginInterceptor implements HandlerInterceptor{
             
             return false;
         }
+        
+        String tokenAnddateTime = (String)session.getAttribute(sessionId);
         
         String[] tokenAnddateTimeArray = tokenAnddateTime.split(",");
         String tokenStorage = tokenAnddateTimeArray[0];
@@ -126,16 +129,16 @@ public class LoginInterceptor implements HandlerInterceptor{
             return false;
         }
         
-        returnJson.setSuccess(true);
-        returnJson.setMessage("登录验证成功");
+        //returnJson.setSuccess(true);
+        //returnJson.setMessage("登录验证成功");
         
         //更新token以及token的时间
-        String newToken = Token.getToken();
-        session.setAttribute(userId, newToken + "," + new Timestamp().getDateTime());
+        //String newToken = Token.getToken();
+        session.setAttribute(sessionId, token + "," + new Timestamp().getDateTime());
         //更新Token，防止重复提交
-        response.setHeader("token", newToken);
+        //response.setHeader("token", newToken);
         
-        dealJsonReturn(request, response, returnJson.toJSON()); 
+        //dealJsonReturn(request, response, returnJson.toJSON()); 
         
         return true;
     }
