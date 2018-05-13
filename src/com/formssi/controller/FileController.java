@@ -98,7 +98,7 @@ public class FileController {
 	
 	@RequestMapping(value = "/dowloadFile", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String dowloadFile(@RequestParam("data") String date, HttpServletRequest request, HttpServletResponse response) {
+	public String dowloadFile(@RequestParam("data") String date, HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		
 		ShareFile shareFile = ShareFile.parse(date);	//传递当前	登录用户Id	和请求的  文件id,
@@ -112,7 +112,7 @@ public class FileController {
 		}
 		
 		try {
-			fileService.dowloadFile(shareFile, request, response);
+			fileService.dowloadFile(shareFile);
 			returnJson.setSuccess(true);
 			returnJson.setMessage("文件下载成功！");
 		}catch(Exception e) {

@@ -15,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.web.WebApplicationInitializer;
 
 import com.formssi.service.FileShareService;
-import com.formssi.service.impl.FileServiceImpl;
 
 public class WebInitializer implements WebApplicationInitializer {
 	
@@ -51,7 +50,7 @@ public class WebInitializer implements WebApplicationInitializer {
 		}
 		for(int i = 0;i<100;i++){
 			FileShareService.observeReqEvent(i);
-			FileServiceImpl.observeResRvent(i);
+			FileShareService.observeResRvent(i);
 		}
     }
 }
