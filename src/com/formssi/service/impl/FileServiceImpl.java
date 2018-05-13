@@ -1,15 +1,16 @@
 package com.formssi.service.impl;
 
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
+import org.bcos.web3j.protocol.core.DefaultBlockParameterName;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.alibaba.fastjson.JSONObject;
 import com.formssi.dao.FileDao;
 import com.formssi.entity.FileReq;
 import com.formssi.entity.ShareFile;
@@ -26,7 +27,7 @@ import wrapper.FileInfo.ResponseFileEventEventResponse;
 @Service
 public class FileServiceImpl implements FileService {
 
-	private Logger logger = LoggerFactory.getLogger(this.getClass());
+	private static Logger logger = LoggerFactory.getLogger(FileServiceImpl.class);
 
 	// 注入Service依赖
 	@Autowired
@@ -67,6 +68,7 @@ public class FileServiceImpl implements FileService {
 		fReq.setFileId(shareFile.getFileId());
 		ShareFile sFile=fileDao.queryById(shareFile.getFileId());
 		fReq.setUserId(sFile.getUserId());	//根据fileId从数据库里面查  文件拥有者Id
+		logger.info(shareFile.getUserId());
 		fReq.setRequestId("REQ"+shareFile.getUserId()+System.currentTimeMillis());	//登录当前用户ID用来创建reqId
 		fReq.setRequestTime(Utils.sdf(System.currentTimeMillis()));	//当前时间
 		try {
@@ -90,5 +92,36 @@ public class FileServiceImpl implements FileService {
 			e.printStackTrace();
 		}
 	}
-
+	
+public static Observable<ResponseFileEventEventResponse> observeResRvent(int contractId) {
+		
+		Observable<ResponseFileEventEventResponse> resObservable = FileShareService.contractListOfObservable
+				.get(contractId).responseFileEventEventObservable(DefaultBlockParameterName.EARLIEST, DefaultBlockParameterName.LATEST);
+		resObservable.subscribe((response)->{
+			logger.info("\n\n----------ResponseSucceedEvent---------");
+			logger.info(""+response);
+			logger.info(response.info.getValue());
+			JSONObject resInfo = JSONObject.parseObject(response.info.getValue().toString());
+			
+			String PubKeyToSymkey = JSONObject.parseObject(resInfo.getString("response")).getString("_PubKeyToSymkey");
+			String fileAddr = JSONObject.parseObject(resInfo.getString("response")).getString("_fileAddr");
+			logger.info(fileAddr);
+			//不用加密做测试
+			String basePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"/files/keys/"+resInfo.getString("userId")+"PRIKEY";//私钥路径
+			try {
+				String privateKey = Utils.fileRead(basePath);//读取获取私钥（base64格式）
+//				//私钥解密PubKeyToSymkey（被加密的公共密钥）和fileAddr（加密地址）
+				String dePubKeyToSymkey = new String(RSAUtils.decryptByPrivateKey(PubKeyToSymkey.getBytes(), privateKey));
+				String deFileAddr = new String(RSAUtils.decryptByPrivateKey(fileAddr.getBytes(), privateKey));
+				logger.info(deFileAddr);
+				//用地址去下载文件
+				//DowloadFileUtil.downLoad(deFileAddr);
+				
+			} catch (Exception e) {
+				
+				e.printStackTrace();
+			}
+		});
+		return resObservable;
+	}
 }
