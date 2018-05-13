@@ -23,12 +23,12 @@ public class SysInitBean implements InitializingBean, ServletContextAware {
 
 	@Override
 	public void afterPropertiesSet() throws Exception {
-		new FileShareService();
+		/*new FileShareService();
 		FileShareService.initObj();
 		for(int i = 0;i<100;i++){
 			FileShareService.observeReqEvent(i);
 			FileShareService.observeResRvent(i);
-		}
+		}*/
 	}
 
 }
