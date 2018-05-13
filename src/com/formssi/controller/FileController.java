@@ -101,7 +101,7 @@ public class FileController {
 	public String dowloadFile(@RequestParam("data") String date, HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		
-		ShareFile shareFile = ShareFile.parse(date);
+		ShareFile shareFile = ShareFile.parse(date);	//传递当前	登录用户Id	和请求的  文件id,
 		
 		ReturnJson returnJson = new ReturnJson();
 		
@@ -116,6 +116,7 @@ public class FileController {
 			returnJson.setSuccess(true);
 			returnJson.setMessage("文件下载成功！");
 		}catch(Exception e) {
+			e.printStackTrace();
 			returnJson.setSuccess(false);
 			returnJson.setMessage("文件下载失败！");
 			return returnJson.toJSON();

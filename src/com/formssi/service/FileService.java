@@ -12,5 +12,5 @@ public interface FileService {
 	
 	List<ShareFile> queryAll(ShareFile shareFile);
 	
-	void dowloadFile(ShareFile shareFile);
+	void dowloadFile(ShareFile shareFile);//登录用户ID
 }

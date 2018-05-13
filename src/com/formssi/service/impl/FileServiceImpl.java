@@ -65,9 +65,10 @@ public class FileServiceImpl implements FileService {
 		//调区块链请求
 		FileReq fReq = new FileReq();
 		fReq.setFileId(shareFile.getFileId());
-		fReq.setUserId(shareFile.getUserId());
-		fReq.setRequestId("REQ"+shareFile.getUserId()+new Date().getTime());
-		fReq.setRequestTime("2018-5-10");
+		ShareFile sFile=fileDao.queryById(shareFile.getFileId());
+		fReq.setUserId(sFile.getUserId());	//根据fileId从数据库里面查  文件拥有者Id
+		fReq.setRequestId("REQ"+shareFile.getUserId()+System.currentTimeMillis());	//登录当前用户ID用来创建reqId
+		fReq.setRequestTime(Utils.sdf(System.currentTimeMillis()));	//当前时间
 		try {
 			
 			String reqFile = FileShareService.RequestFile(fReq);
