@@ -241,7 +241,7 @@ public class FileShareService {
 					String enPubKeyToSymkey = new String(Base64.getEncoder().encode(RSAUtils.encryptByPublicKey(dePubKeyToSymkey, pubKey))) ;
 					
 					byte[] deFileAddr = RSAUtils.decryptByPrivateKey(fileAddr.getBytes(), privateKey);
-					String enFileAddr = new String(Base64.getEncoder().encode(RSAUtils.encryptByPublicKey(deFileAddr, pubKey)));
+					String enFileAddr = new String(RSAUtils.encryptByPublicKey(deFileAddr, pubKey));
 					//不用加密做测试
 //					String enPubKeyToSymkey = "test";
 //					String enFileAddr = "D:/RSE/publickey/publickey.txt";
@@ -278,6 +278,7 @@ public class FileShareService {
 //				//私钥解密PubKeyToSymkey（被加密的公共密钥）和fileAddr（加密地址）
 				String dePubKeyToSymkey = new String(RSAUtils.decryptByPrivateKey(PubKeyToSymkey.getBytes(), privateKey));
 				String deFileAddr = new String(RSAUtils.decryptByPrivateKey(fileAddr.getBytes(), privateKey));
+				logger.info(deFileAddr);
 				//用地址去下载文件
 				DowloadFileUtil.downLoad(deFileAddr);
 			} catch (Exception e) {
