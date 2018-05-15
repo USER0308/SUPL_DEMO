@@ -15,7 +15,7 @@
                 and upload_dep = #{department}
             </if>
             <if test="allowRank!=null and allowRank!=''">
-                <![CDATA[and allow_rank >= ${allowRank}]]>
+                <![CDATA[and allow_rank <= ${allowRank}]]>
             </if>
             <if test="allowDep!=null and allowDep!=''">
                 and FIND_IN_SET(${allowDep},allow_dep)

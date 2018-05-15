@@ -6,7 +6,12 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,6 +26,7 @@ import com.formssi.service.UserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
+import utils.DowloadFileUtil;
 import utils.RSAUtils;
 import utils.Utils;
 
@@ -96,33 +102,18 @@ public class FileController {
 		return returnJson.toJSON();
 	}
 	
-	@RequestMapping(value = "/dowloadFile", produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public String dowloadFile(@RequestParam("data") String date, HttpServletResponse response) {
+	@RequestMapping(value = "/dowloadFile")
+	public void dowloadFile(@RequestParam("data") String date, HttpServletRequest request,HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		
 		ShareFile shareFile = ShareFile.parse(date);	//传递当前	登录用户Id	和请求的  文件id,
 		
-		ReturnJson returnJson = new ReturnJson();
-		
-		if (null == shareFile || Utils.stringIsNull(shareFile.getFileId()) ) {
-			returnJson.setSuccess(false);
-			returnJson.setMessage("文件不存在！");
-			return returnJson.toJSON();
-		}
-		
 		try {
-			fileService.dowloadFile(shareFile);
-			returnJson.setSuccess(true);
-			returnJson.setMessage("文件下载成功！");
+			String fileAddr = fileService.dowloadFile(shareFile);
+			DowloadFileUtil._downLoad(fileAddr, request, response, false);
 		}catch(Exception e) {
 			e.printStackTrace();
-			returnJson.setSuccess(false);
-			returnJson.setMessage("文件下载失败！");
-			return returnJson.toJSON();
 		}
-		
-		return returnJson.toJSON();
 	}
 	
 	@RequestMapping(value = "/checkFile", produces = "application/json;charset=UTF-8")

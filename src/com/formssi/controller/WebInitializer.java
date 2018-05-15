@@ -50,7 +50,7 @@ public class WebInitializer implements WebApplicationInitializer {
 		}
 		for(int i = 0;i<100;i++){
 			FileShareService.observeReqEvent(i);
-			FileShareService.observeResRvent(i);
+			//FileShareService.observeResRvent(i);
 		}
     }
 }

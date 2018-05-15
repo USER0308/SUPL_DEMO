@@ -58,7 +58,7 @@ public class UserController {
 				System.out.println("login sessionid: "+sessionId);
 				System.out.println("login token: "+session.getAttribute(sessionId));
 				
-				returnJson.setObj("{\"token\":\"" + token + "\",\"sessionId\":\""+session.getId()+"\"}");
+				returnJson.setObj("{\"token\":\"" + token + "\",\"sessionId\":\""+session.getId()+"\",\"rank\":"+user.getRank()+",\"department\":"+user.getDepartment()+"}");
 			}else {//其他情况一律登录失败
 				returnJson.setSuccess(false);
 				returnJson.setMessage("用户名或密码错误！");

@@ -276,36 +276,36 @@ public class FileShareService {
 		return reqObservable;
 	}
 
-	public static Observable<ResponseFileEventEventResponse> observeResRvent(int contractId) {
-
+	public static Observable<ResponseFileEventEventResponse> observeResRvent(String userId) {
+		int contractId = choiceContract(userId);// 通过身份证号码来选择哪个合约
 		Observable<ResponseFileEventEventResponse> resObservable = contractListOfObservable.get(contractId)
 				.responseFileEventEventObservable(DefaultBlockParameterName.EARLIEST, DefaultBlockParameterName.LATEST);
-		resObservable.subscribe((response) -> {
-			logger.info("\n\n----------ResponseSucceedEvent---------");
-			logger.info("" + response);
-			logger.info(response.info.getValue());
-			JSONObject resInfo = JSONObject.parseObject(response.info.getValue().toString());
-
-			String PubKeyToSymkey = JSONObject.parseObject(resInfo.getString("response")).getString("_PubKeyToSymkey");
-			String fileAddr = JSONObject.parseObject(resInfo.getString("response")).getString("_fileAddr");
-			logger.info(fileAddr);
-			// 不用加密做测试
-			String basePath = Thread.currentThread().getContextClassLoader().getResource("").getPath() + "/files/keys/"
-					+ resInfo.getString("userId") + "PRIKEY";// 私钥路径
-			try {
-				String privateKey = Utils.fileRead(basePath);// 读取获取私钥（base64格式）
-				// //私钥解密PubKeyToSymkey（被加密的公共密钥）和fileAddr（加密地址）
-				String dePubKeyToSymkey = new String(
-						RSAUtils.decryptByPrivateKey(PubKeyToSymkey.getBytes(), privateKey));
-				String deFileAddr = new String(RSAUtils.decryptByPrivateKey(fileAddr.getBytes(), privateKey));
-				logger.info(deFileAddr);
-				// 用地址去下载文件
-				DowloadFileUtil.downLoad(deFileAddr);
-			} catch (Exception e) {
-
-				e.printStackTrace();
-			}
-		});
+//		resObservable.subscribe((response) -> {
+//			logger.info("\n\n----------ResponseSucceedEvent---------");
+//			logger.info("" + response);
+//			logger.info(response.info.getValue());
+//			JSONObject resInfo = JSONObject.parseObject(response.info.getValue().toString());
+//
+//			String PubKeyToSymkey = JSONObject.parseObject(resInfo.getString("response")).getString("_PubKeyToSymkey");
+//			String fileAddr = JSONObject.parseObject(resInfo.getString("response")).getString("_fileAddr");
+//			logger.info(fileAddr);
+//			// 不用加密做测试
+//			String basePath = Thread.currentThread().getContextClassLoader().getResource("").getPath() + "/files/keys/"
+//					+ resInfo.getString("userId") + "PRIKEY";// 私钥路径
+//			try {
+//				String privateKey = Utils.fileRead(basePath);// 读取获取私钥（base64格式）
+//				// //私钥解密PubKeyToSymkey（被加密的公共密钥）和fileAddr（加密地址）
+//				String dePubKeyToSymkey = new String(
+//						RSAUtils.decryptByPrivateKey(PubKeyToSymkey.getBytes(), privateKey));
+//				String deFileAddr = new String(RSAUtils.decryptByPrivateKey(fileAddr.getBytes(), privateKey));
+//				logger.info(deFileAddr);
+//				// 用地址去下载文件
+//				DowloadFileUtil.downLoad(deFileAddr);
+//			} catch (Exception e) {
+//
+//				e.printStackTrace();
+//			}
+//		});
 		return resObservable;
 	}
 
