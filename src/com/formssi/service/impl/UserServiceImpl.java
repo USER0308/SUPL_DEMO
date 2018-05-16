@@ -1,6 +1,7 @@
 package com.formssi.service.impl;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -56,6 +57,11 @@ public class UserServiceImpl implements UserService {
 		return userDao.queryById(id);
 	}
 
+	public List<User> queryUser() {
+		return userDao.queryUser();
+		
+	}
+	
 //	@Transactional	//该注解是开启事务的注解
 //    public int addBooks(BookTest book) throws InterruptedException {
 //        System.out.println("test====================================");

@@ -1,5 +1,7 @@
 package com.formssi.controller;
 
+import java.util.List;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
@@ -14,6 +16,8 @@ import com.alibaba.fastjson.JSON;
 import com.formssi.entity.ReturnJson;
 import com.formssi.entity.User;
 import com.formssi.service.UserService;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.sun.jmx.snmp.Timestamp;
 
 import utils.MD5Util;
@@ -166,4 +170,19 @@ public class UserController {
 		return returnJson.toJSON();
 	}
 	
+	@RequestMapping(value = "/queryUser", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String queryUser(@RequestParam("data") String data, HttpServletResponse response) {
+		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+		User user = User.parse(data);
+		PageHelper.startPage(user.getPageNum(), user.getPageSize());
+		List<User> userList = userService.queryUser();
+		PageInfo page = new PageInfo(userList, user.getPageSize());
+		ReturnJson returnJson = new ReturnJson();
+        returnJson.setObj(page);
+		returnJson.setSuccess(true);
+		returnJson.setMessage("查询用户列表成功！");		
+        
+		return returnJson.toJSON();
+	}
 }

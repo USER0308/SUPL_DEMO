@@ -24,6 +24,26 @@ public class User {
 	private String createTime;	//	创建时间	上链
 	private String updateTime;	//	更新时间	上链
 
+	private int pageNum; //当前是第几页
+	private int pageSize; //每页显示多少条
+
+	@JSONField(name = "pageNum")
+	public int getPageNum() {
+		return pageNum;
+	}
+	@JSONField(name = "pageNum")
+	public void setPageNum(int pageNum) {
+		this.pageNum = pageNum;
+	}
+	@JSONField(name = "pageSize")
+	public int getPageSize() {
+		return pageSize;
+	}
+	@JSONField(name = "pageSize")
+	public void setPageSize(int pageSize) {
+		this.pageSize = pageSize;
+	}
+	
 	@JSONField(name = "userId")
 	public String getUserId() {
 		return userId;
