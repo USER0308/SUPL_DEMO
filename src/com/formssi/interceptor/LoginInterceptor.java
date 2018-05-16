@@ -49,6 +49,14 @@ public class LoginInterceptor implements HandlerInterceptor{
     	response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
         ReturnJson returnJson = new ReturnJson();
         
+        //说明是下载请求，无需拦截
+        if(request.getRequestURI().indexOf("dowloadFile") != -1) {
+        	returnJson.setSuccess(true);
+            returnJson.setMessage("下载请求成功");
+            
+            return true;
+        }
+        
         //说明是登录请求，无需拦截
         if(request.getRequestURI().indexOf("login") != -1) {
         	returnJson.setSuccess(true);
