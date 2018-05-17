@@ -178,7 +178,7 @@ public class UserController {
 		try {
 			User user = User.parse(data);
 			PageHelper.startPage(user.getPageNum(), user.getPageSize());
-			List<User> userList = userService.queryUser();
+			List<User> userList = userService.queryUser(user);
 			PageInfo page = new PageInfo(userList, user.getPageSize());
 			
 	        returnJson.setObj(page);
@@ -190,8 +190,8 @@ public class UserController {
 			returnJson.setMessage("查询用户列表失败！");
 			return returnJson.toJSON();
 		}
-		
         
 		return returnJson.toJSON();
 	}
+	
 }

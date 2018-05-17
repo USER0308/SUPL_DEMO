@@ -57,8 +57,8 @@ public class UserServiceImpl implements UserService {
 		return userDao.queryById(id);
 	}
 
-	public List<User> queryUser() {
-		return userDao.queryUser();
+	public List<User> queryUser(User user) {
+		return userDao.queryUser(user);
 		
 	}
 	

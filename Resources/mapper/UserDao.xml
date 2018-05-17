@@ -6,6 +6,24 @@
 <!-- namespace配置了要映射的dao -->
 <mapper namespace="com.formssi.dao.UserDao">
 	<!-- 目的：为dao接口方法提供sql语句配置 -->
+	
+	<sql id="inc_whereClause" >
+        <where>
+            <if test="rank!=null and rank!=''">
+                and rank = #{rank}
+            </if>
+            <if test="department!=null and department!=''">
+                and department = #{department}
+            </if>
+            <if test="userId!=null and userId!=''">
+                and id = #{userId}
+            </if>
+            <if test="userName!=null and userName!=''">
+                and name = #{userName}
+            </if>
+        </where>
+    </sql>
+	
 	<select id="queryById" resultType="com.formssi.entity.User" parameterType="String">
 		SELECT
 			id as userId,
@@ -32,6 +50,8 @@
 			department as department
 		FROM
 			army_user
+		<include refid="inc_whereClause"/>
 	</select>
+	
 	
 </mapper>

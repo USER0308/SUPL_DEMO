@@ -10,5 +10,5 @@ public interface UserService {
 
 	void add(User user) throws Exception;
 	
-	List<User> queryUser();
+	List<User> queryUser(User user);
 }
