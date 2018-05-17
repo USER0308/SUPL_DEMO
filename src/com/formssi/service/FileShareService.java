@@ -7,9 +7,12 @@ import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.Base64;
+import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
+import org.apache.http.client.utils.DateUtils;
 import org.bcos.channel.client.Service;
 import org.bcos.channel.handler.ChannelConnections;
 import org.bcos.web3j.abi.datatypes.Utf8String;
@@ -18,7 +21,11 @@ import org.bcos.web3j.crypto.CipherException;
 import org.bcos.web3j.crypto.Credentials;
 import org.bcos.web3j.crypto.WalletUtils;
 import org.bcos.web3j.protocol.Web3j;
+import org.bcos.web3j.protocol.core.DefaultBlockParameter;
 import org.bcos.web3j.protocol.core.DefaultBlockParameterName;
+import org.bcos.web3j.protocol.core.methods.response.EthBlock;
+import org.bcos.web3j.protocol.core.methods.response.EthGetTransactionReceipt;
+import org.bcos.web3j.protocol.core.methods.response.Log;
 import org.bcos.web3j.protocol.core.methods.response.TransactionReceipt;
 import org.bcos.web3j.protocol.http.HttpService;
 import org.bcos.web3j.protocol.parity.Parity;
@@ -29,6 +36,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.stereotype.Controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.formssi.entity.Block;
 import com.formssi.entity.FileReq;
 import com.formssi.entity.FileRes;
 import com.formssi.entity.ShareFile;
@@ -36,7 +44,6 @@ import com.formssi.entity.User;
 
 import exception.initConfigException;
 import rx.Observable;
-import utils.DowloadFileUtil;
 import utils.PropertiesUtil;
 import utils.RSAUtils;
 import utils.Utils;
@@ -328,5 +335,82 @@ public class FileShareService {
 	// new Utf8String(fRes.getResponseId()),new
 	// Utf8String(fRes.getRequestId()),new Utf8String(fRes.getFileId()),new
 	// Utf8String(fRes.getPubKeyToSymkey()),new Utf8String(fRes.getFileAddr())
+	
+	public static BigInteger getBlockHigh() throws Exception{
+		BigInteger blockNumber = transactionWeb3.ethBlockNumber().send().getBlockNumber();
+		return blockNumber;
+	}
+	
+	public static Block getBlockTransLogInfo(BigInteger blockNumber) throws Exception{
+		Block returnBlock = new Block();
+		
+		try {
+			EthBlock ethBlock = transactionWeb3.ethGetBlockByNumber(DefaultBlockParameter.valueOf(blockNumber), false).send();
+			EthBlock.Block block = ethBlock.getBlock();
+			
+			returnBlock.setBlockNumber(String.valueOf(blockNumber));
+		    BigInteger blockTime = block.getTimestamp();
+			Date date = new Date(Long.valueOf(String.valueOf(blockTime)));
+			String blockTimeStr = DateUtils.formatDate(date, "yyyy-MM-dd HH:mm:ss");
+			System.out.println(blockTimeStr);
+			returnBlock.setBlockTime(blockTimeStr);
+			returnBlock.setPreBlockHash(block.getParentHash());
+			returnBlock.setCurrBlockHash(block.getHash());
+			String transInfos = "";
+			
+			List<EthBlock.TransactionResult> transactionResults = block.getTransactions();
+			for (EthBlock.TransactionResult result : transactionResults) {
+				EthGetTransactionReceipt ethGetTransactionReceipt = transactionWeb3.ethGetTransactionReceipt((String) result.get()).send();
+				Optional<TransactionReceipt> opt = ethGetTransactionReceipt.getTransactionReceipt();
+				if (opt.isPresent()) {
+					TransactionReceipt receipt = opt.get();
+					List<Log> logList = receipt.getLogs();
+					for (Log log : logList) {
+						String data = log.getData();
+						System.out.println("data: " + data);
+						String transInfo = hexStringToString(data.substring(130));
+						System.out.println("transInfo: " + transInfo);
+						transInfos += transInfo;
+					}
+				}
+			}
+			returnBlock.setTransInfo(transInfos.trim());
+		} catch (Exception e) {
+			System.out.println("查询区块信息异常");
+			e.printStackTrace();
+			throw new Exception("getBlockTransLogInfo, 查询区块信息异常");
+		}
+		
+		return returnBlock;
+	}
+	
+	 /** 
+     * 16进制字符串转换为字符串 
+     *  
+     * @param s 
+     * @return 
+     */  
+    public static String hexStringToString(String s) {  
+        if (s == null || s.equals("")) {  
+            return null;  
+        }  
+        s = s.replace(" ", "");  
+        byte[] baKeyword = new byte[s.length() / 2];  
+        for (int i = 0; i < baKeyword.length; i++) {  
+            try {  
+                baKeyword[i] = (byte) (0xff & Integer.parseInt(  
+                        s.substring(i * 2, i * 2 + 2), 16));  
+            } catch (Exception e) {  
+                e.printStackTrace();  
+            }  
+        }  
+        try {  
+            s = new String(baKeyword, "gbk");  
+            new String();  
+        } catch (Exception e1) {  
+            e1.printStackTrace();  
+        }  
+        return s;  
+    }  
 
 }
