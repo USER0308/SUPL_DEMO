@@ -174,15 +174,24 @@ public class UserController {
 	@ResponseBody
 	public String queryUser(@RequestParam("data") String data, HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
-		User user = User.parse(data);
-		PageHelper.startPage(user.getPageNum(), user.getPageSize());
-		List<User> userList = userService.queryUser();
-		PageInfo page = new PageInfo(userList, user.getPageSize());
 		ReturnJson returnJson = new ReturnJson();
-        returnJson.setObj(page);
-		returnJson.setSuccess(true);
-		returnJson.setMessage("查询用户列表成功！");		
+		try {
+			User user = User.parse(data);
+			PageHelper.startPage(user.getPageNum(), user.getPageSize());
+			List<User> userList = userService.queryUser(user);
+			PageInfo page = new PageInfo(userList, user.getPageSize());
+			
+	        returnJson.setObj(page);
+			returnJson.setSuccess(true);
+			returnJson.setMessage("查询用户列表成功！");
+		} catch (Exception e) {
+			// TODO: handle exception
+			returnJson.setSuccess(false);
+			returnJson.setMessage("查询用户列表失败！");
+			return returnJson.toJSON();
+		}
         
 		return returnJson.toJSON();
 	}
+	
 }

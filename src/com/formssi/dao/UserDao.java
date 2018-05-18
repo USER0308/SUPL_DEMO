@@ -13,5 +13,5 @@ public interface UserDao {
 
 	void add(User user);
 	
-	List<User> queryUser();
+	List<User> queryUser(User user);
 }
