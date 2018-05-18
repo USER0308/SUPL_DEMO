@@ -26,6 +26,7 @@ import com.formssi.service.UserService;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
 
+import utils.Base64Utils;
 import utils.DowloadFileUtil;
 import utils.RSAUtils;
 import utils.Utils;
@@ -69,6 +70,7 @@ public class FileController {
     	shareFile.setUserId(userId);
     	
     	String baseFilePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"/files/uploadFiles/";//获取要写入的文件路径
+//    	String baseFilePath="/file/uploadFiles/";//获取要写入的文件路径
 //    	String keyFilePath=Thread.currentThread().getContextClassLoader().getResource("").getPath()+"\\files\\keys\\";		//拼公钥的地址
     	System.out.println(baseFilePath);
     	File upfile=new File(baseFilePath);
@@ -103,14 +105,30 @@ public class FileController {
 	}
 	
 	@RequestMapping(value = "/dowloadFile")
-	public void dowloadFile(@RequestParam("data") String date, HttpServletRequest request,HttpServletResponse response) {
+	public void dowloadFile(String data, HttpServletRequest request,HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
-		
-		ShareFile shareFile = ShareFile.parse(date);	//传递当前	登录用户Id	和请求的  文件id,
+		System.out.println("into dowloadFile!");
+		System.out.println("==============================================date: " + data);
+		String dcodeData = null;
 		
 		try {
+			byte[] decodeValue = Base64Utils.decode(data);
+			System.out.println("decodeValue: " + decodeValue);
+			dcodeData = new String(decodeValue);
+			System.out.println("dcodeData: " + dcodeData);
+		} catch (Exception e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		}
+		
+		ShareFile shareFile = ShareFile.parse(dcodeData);	//传递当前	登录用户Id	和请求的  文件id,
+		
+		try {
+			System.out.println("before into fileService.dowloadFile!");
 			String fileAddr = fileService.dowloadFile(shareFile);
+			System.out.println("区块链返回了fileAddr： "+ fileAddr);
 			DowloadFileUtil._downLoad(fileAddr, request, response, false);
+			System.out.println("exit dowloadFile!");
 		}catch(Exception e) {
 			e.printStackTrace();
 		}

@@ -112,6 +112,7 @@ public class FileServiceImpl implements FileService {
 //					DowloadFileUtil.downLoad(deFileAddr);
 					String key = JSONObject.parseObject(resInfo.getString("response")).getString("_fileId") + shareFile.getUserId();
 					fileAddrMap.put(key, deFileAddr);
+					System.out.println("deFileAddr: " + deFileAddr);
 				} catch (Exception e) {
 	
 					e.printStackTrace();
@@ -127,6 +128,7 @@ public class FileServiceImpl implements FileService {
 				if(b) {
 					fileAddrReturn = fileAddrMap.get(key);
 					logger.info(fileAddrReturn);
+					System.out.println("fileAddrReturn: " + fileAddrReturn);
 				}else {
 					logger.info("下载超时");
 					throw new Exception("下载超时");
@@ -134,6 +136,7 @@ public class FileServiceImpl implements FileService {
 			}else {
 				fileAddrReturn = fileAddrMap.get(key);
 				logger.info(fileAddrReturn);
+				System.out.println("fileAddrReturn: " + fileAddrReturn);
 			}
 		
 		

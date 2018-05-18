@@ -18,7 +18,9 @@ public class DowloadFileUtil {
 		OutputStream out = null;
 		try {
 	        File f = new File(filePath);
+	        System.out.println("filePath: " + filePath);
 	        if (!f.exists()) {
+	        	System.out.println("File not found!");
 	            response.sendError(404, "File not found!");
 	            return;
 	        }

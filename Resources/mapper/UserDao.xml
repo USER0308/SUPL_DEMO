@@ -24,4 +24,14 @@
 		values(#{userId}, #{userName}, #{password}, #{rank}, #{department}, 0)
 	</insert>
 	
+	<select id="queryUser" resultType="com.formssi.entity.User">
+		SELECT
+			id as userId,
+			name as userName,
+			rank as rank,
+			department as department
+		FROM
+			army_user
+	</select>
+	
 </mapper>
