@@ -51,6 +51,7 @@
 		FROM
 			army_user
 		<include refid="inc_whereClause"/>
+		order by update_time desc
 	</select>
 	
 	

@@ -51,6 +51,7 @@
 		FROM
 			share_file
 		<include refid="inc_whereClause"/>
+		order by upload_time desc
 	</select>
 	
 	<insert id="add" parameterType="com.formssi.entity.ShareFile">
