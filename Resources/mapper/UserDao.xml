@@ -54,4 +54,26 @@
 	</select>
 	
 	
+	<update id="updateUser" parameterType="com.formssi.entity.User">
+		UPDATE army_user 
+			<set>
+				<if test="userName != null">
+					name = #{userName, jdbcType=VARCHAR},
+				</if>
+				<if test="password != null">
+					pw = #{password, jdbcType=VARCHAR},
+				</if>
+				<if test="rank != 0">
+					rank = #{rank, jdbcType=INTEGER},
+				</if>
+				<if test="department != 0">
+					department = #{department, jdbcType=INTEGER},
+				</if>
+				update_time = CURRENT_TIMESTAMP
+			</set> 
+			
+		where id = #{userId, jdbcType=VARCHAR}
+	</update>
+	
+	
 </mapper>

@@ -15,6 +15,7 @@ import com.formssi.entity.User;
 import com.formssi.service.FileShareService;
 import com.formssi.service.UserService;
 
+import utils.MD5Util;
 import utils.RSAUtils;
 import utils.Utils;
 
@@ -40,7 +41,7 @@ public class UserServiceImpl implements UserService {
 		RSAUtils.keyFiles(keyMap,pubKeyFileName,basePath+user.getUserId()+"PRIKEY");
 		//创建用户时，如下三个字段不是页面传递过来的，需要服务端来创建并写入区块链但不需要写入数据库
 		user.setPubKey(RSAUtils.getPublicKey(keyMap));
-		user.setCreateTime(Utils.getCurrentDate());
+		user.setCreateTime(Utils.sdf(System.currentTimeMillis()));
 		user.setUpdateTime(user.getCreateTime());
 		try {
 			String respJson=FileShareService.addUser(user);
@@ -61,6 +62,26 @@ public class UserServiceImpl implements UserService {
 		return userDao.queryUser(user);
 		
 	}
+	
+	@Transactional(rollbackFor={RuntimeException.class, Exception.class})
+	public void updateUser(User user) throws Exception {
+		user.setPassword(MD5Util.MD5Encode(user.getPassword(), "UTF-8"));
+		user.setUpdateTime(Utils.sdf(System.currentTimeMillis()));
+		
+		userDao.updateUser(user);
+		user.setPubKey("");
+		user.setCreateTime("");
+//		因为userName 和pwd不上链，所以对其进行非空处理
+		try {
+			String respJson=FileShareService.addUser(user);
+			logger.debug("updateUser blockchain response:",respJson);
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("updateUser to blockchain filed!!");
+			throw new Exception("updateUser to blockchain made a exception!");
+		}
+	}
+	
 	
 //	@Transactional	//该注解是开启事务的注解
 //    public int addBooks(BookTest book) throws InterruptedException {

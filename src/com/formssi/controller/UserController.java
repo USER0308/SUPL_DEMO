@@ -194,4 +194,34 @@ public class UserController {
 		return returnJson.toJSON();
 	}
 	
+	
+	@RequestMapping(value = "/updateUser", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String updateUser(@RequestParam("data") String date, HttpServletResponse response) {
+		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+		//非空校验放到serverimpl中处理，controller内部暂不处理
+		
+		User user = User.parse(date);
+		
+		ReturnJson returnJson = new ReturnJson();
+		
+		if (null == user || Utils.stringIsNull(user.getUserId()) ) {
+			returnJson.setSuccess(false);
+			returnJson.setMessage("用户数据不能为空！");
+			return returnJson.toJSON();
+		}
+		
+		try {
+			userService.updateUser(user);
+			returnJson.setSuccess(true);
+			returnJson.setMessage("修改用户成功！");
+		}catch(Exception e) {
+			returnJson.setSuccess(false);
+			returnJson.setMessage("修改用户失败！");
+			return returnJson.toJSON();
+		}
+		
+		return returnJson.toJSON();
+	}
+	
 }
