@@ -6,6 +6,7 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.NoSuchAlgorithmException;
 import java.security.NoSuchProviderException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Base64;
@@ -15,6 +16,9 @@ import java.util.concurrent.ExecutionException;
 import org.apache.http.client.utils.DateUtils;
 import org.bcos.channel.client.Service;
 import org.bcos.channel.handler.ChannelConnections;
+import org.bcos.web3j.abi.EventEncoder;
+import org.bcos.web3j.abi.TypeReference;
+import org.bcos.web3j.abi.datatypes.Event;
 import org.bcos.web3j.abi.datatypes.Utf8String;
 import org.bcos.web3j.abi.datatypes.generated.Int256;
 import org.bcos.web3j.crypto.CipherException;
@@ -71,6 +75,17 @@ public class FileShareService {
 	private static List<String> contractAddressList = new ArrayList<>();
 
 	private static String subPath = null;
+	
+	private static final Event requestFileEvent = new Event("RequestFileEvent", 
+            Arrays.<TypeReference<?>>asList(),
+            Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}, new TypeReference<Utf8String>() {}));
+	
+	private static final Event responseFileEvent = new Event("ResponseFileEvent", 
+            Arrays.<TypeReference<?>>asList(),
+            Arrays.<TypeReference<?>>asList(new TypeReference<Utf8String>() {}, new TypeReference<Utf8String>() {}));
+	
+	private static String encodedRequestFileEventSignature = EventEncoder.encode(requestFileEvent);
+	private static String encodedResponseFileEventSignature = EventEncoder.encode(responseFileEvent);
 
 	public static void initObj() throws InterruptedException, InvalidAlgorithmParameterException,
 			NoSuchAlgorithmException, NoSuchProviderException, ExecutionException, IOException, CipherException {
@@ -366,9 +381,14 @@ public class FileShareService {
 					TransactionReceipt receipt = opt.get();
 					List<Log> logList = receipt.getLogs();
 					for (Log log : logList) {
+						List<String> topics = log.getTopics();
+						int subLength = 130;
+						if(topics!=null && topics.size()>0 && (topics.get(0).equals(encodedRequestFileEventSignature) || topics.get(0).equals(encodedResponseFileEventSignature))) {
+							subLength = 322;
+						}
 						String data = log.getData();
 						System.out.println("data: " + data);
-						String transInfo = hexStringToString(data.substring(130));
+						String transInfo = hexStringToString(data.substring(subLength));
 						System.out.println("transInfo: " + transInfo);
 						transInfos += transInfo;
 					}
