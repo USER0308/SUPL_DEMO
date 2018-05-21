@@ -179,7 +179,7 @@ public class UserController {
 			User user = User.parse(data);
 			PageHelper.startPage(user.getPageNum(), user.getPageSize());
 			List<User> userList = userService.queryUser(user);
-			PageInfo page = new PageInfo(userList, user.getPageSize());
+			PageInfo<User> page = new PageInfo<User>(userList, user.getPageSize());
 			
 	        returnJson.setObj(page);
 			returnJson.setSuccess(true);
