@@ -16,11 +16,6 @@ import java.util.Map;
 import org.apache.commons.codec.binary.Hex;
 
 public class Utils {
-	public static String getCurrentDate() {
-		SimpleDateFormat sdf = new SimpleDateFormat("yyyyMMdd");
-		return sdf.format(new Date());
-	}
-	
 	//获取字符串SHA256值
 	public static String getSHA256Str(String str){
         MessageDigest messageDigest;
