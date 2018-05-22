@@ -70,8 +70,7 @@ public class FileServiceImpl implements FileService {
 		Observable<ResponseFileEventEventResponse> resObservable =  FileShareService.observeResRvent(shareFile.getUserId());
 		FileReq fReq = new FileReq();
 		fReq.setFileId(shareFile.getFileId());
-		ShareFile sFile=fileDao.queryById(shareFile.getFileId());
-		fReq.setUserId(sFile.getUserId());	//根据fileId从数据库里面查  文件拥有者Id
+		fReq.setUserId(shareFile.getUserId());	//请求人ID
 		logger.info(shareFile.getUserId());
 		fReq.setRequestId("REQ"+shareFile.getUserId()+System.currentTimeMillis());	//登录当前用户ID用来创建reqId
 		fReq.setRequestTime(Utils.sdf(System.currentTimeMillis()));	//当前时间
