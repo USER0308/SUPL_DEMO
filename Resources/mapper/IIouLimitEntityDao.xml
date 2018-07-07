@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.formssi.dao.IIouLimitEntityDao">
+
+    <!-- 目的：为dao接口方法提供sql语句配置 -->
+    <insert id="addIouLimitEntity" parameterType="com.formssi.entity.IouLimitEntity">
+        <!-- 具体的sql -->
+        INSERT INTO `iouLimitEntity` (`orgID`, `orgName`, `password`, `iouLimit`, `createTime`, `updateTime`) VALUES ('${iouLimitEntity.orgID}','${iouLimitEntity.orgName}','${iouLimitEntity.password}',${iouLimitEntity.iouLimit},'${iouLimitEntity.createTime}','${iouLimitEntity.updateTime}');
+    </insert>
+    
+    <update id="updateIouLimitEntity" parameterType="com.formssi.entity.IouLimitEntity">
+		UPDATE `iouLimitEntity` SET `orgName`='${iouLimitEntity.orgName}', `iouLimit`=${iouLimitEntity.iouLimit}, `createTime`='${iouLimitEntity.createTime}', `updateTime`='${iouLimitEntity.updateTime}' WHERE `orgID`='${iouLimitEntity.orgID}';
+    </update>
+    
+    <select id="queryEntityByOrgName" resultType="com.formssi.entity.IouLimitEntity" parameterType="java.lang.String">
+        <!-- 具体的sql -->
+        SELECT * FROM `iouLimitEntity` WHERE `orgName`='${orgName}';
+    </select>
+    
+    <select id="getIouLimitByOrgID" resultType="Integer" parameterType="java.lang.String">
+    	SELECT `iouLimit` FROM `iouLimitEntity` WHERE `orgID`='${orgID}';
+    </select>
+    
+    <update id="updateIouLimitByOrgID">
+    	UPDATE `iouLimitEntity` SET `iouLimit`=${iouLimit}, `updateTime`='${updateTime}' WHERE `orgID`='${orgID}';
+    </update>
+    
+    <select id="queryIouLimitEntityByOrgID" resultType="com.formssi.entity.IouLimitEntity" parameterType="java.lang.String">
+        <!-- 具体的sql -->
+        SELECT * FROM `iouLimitEntity` WHERE `orgID`='${orgID}';
+    </select>
+    <select id = 'checkPassword' resultType='java.lang.String'  parameterType='java.lang.String'>
+    	<!-- 具体的sql -->
+    	SELECT `password` FROM `iouLimitEntity` WHERE `orgID`='${orgID}';
+    </select>
+</mapper>

@@ -1,6 +1,7 @@
 package com.formssi.controller;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -8,220 +9,292 @@ import javax.servlet.http.HttpSession;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.alibaba.fastjson.JSON;
-import com.formssi.entity.ReturnJson;
-import com.formssi.entity.User;
-import com.formssi.service.UserService;
-import com.github.pagehelper.PageHelper;
-import com.github.pagehelper.PageInfo;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.formssi.entity.IouLimitEntity;
+import com.formssi.service.IIouLimitEntityService;
+import com.formssi.service.impl.IOUService;
+//import com.formssi.entity.ReturnJson;
+//import com.formssi.entity.User;
+//import com.formssi.service.UserService;
+//import com.github.pagehelper.PageHelper;
+//import com.github.pagehelper.PageInfo;
 import com.sun.jmx.snmp.Timestamp;
 
-import utils.MD5Util;
-import utils.MySessionContext;
-import utils.Token;
 import utils.Utils;
+
+//import utils.MD5Util;
+//import utils.MySessionContext;
+//import utils.Token;
+//import utils.Utils;
 
 @Controller
 //@RequestMapping("/login")
 public class UserController {
 	
 	@Autowired
-	private UserService userService;
+	private IIouLimitEntityService iouLimitEntityService;
+//	@Autowired
+//	private IIouRecordService iouRecordService;
+//	@Autowired
+//	private ITransactionService transactionService;
 	
+/*	
 	@RequestMapping(value = "/login", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String login(@RequestParam("data") String date, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+	public String login(HttpServletRequest request, HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+		String orgID=request.getParameter("orgID");
+		String orgName=request.getParameter("orgName");
+		String password=request.getParameter("password");
 		
-		User userInput = User.parse(date);
+		//登录操作
 		
-		ReturnJson returnJson = new ReturnJson();
+		HttpSession session=request.getSession();
+		session.setAttribute("orgID", orgID);
 		
-		try {
-			//通过userService去数据库查该id的用户对象。
-			User user = userService.getById(userInput.getUserId());
-			//查到映射成的对象如果为空，表示该用户不存在
-			if (null == user || Utils.stringIsNull(user.getUserId())) {
-				returnJson.setSuccess(false);
-				returnJson.setMessage("用户不存在！");
-				return returnJson.toJSON();
-			}else if (!Utils.stringIsNull(userInput.getPassword()) && MD5Util.MD5Encode(userInput.getPassword(), "UTF-8").equals(user.getPassword())) {
-				//用户密码不为空，且密码一致。登录成功
-				returnJson.setSuccess(true);
-				returnJson.setMessage("登录成功！");
-				//登录成功返回token
-				String token = Token.getToken();
-				String sessionId = session.getId();
-				
-				//带时间的token存入session，便于拦截器失效校验--正规做法是token存入redis，设置失效时间，拦截器查询token与页面传过来的做比较校验。
-				session.setAttribute(sessionId, token + "," + new Timestamp().getDateTime());
-				System.out.println("login sessionid: "+sessionId);
-				System.out.println("login token: "+session.getAttribute(sessionId));
-				
-				returnJson.setObj("{\"token\":\"" + token + "\",\"sessionId\":\""+session.getId()+"\",\"rank\":"+user.getRank()+",\"department\":"+user.getDepartment()+"}");
-			}else {//其他情况一律登录失败
-				returnJson.setSuccess(false);
-				returnJson.setMessage("用户名或密码错误！");
-				return returnJson.toJSON();
-			}
-		}catch(Exception e) {
-			returnJson.setSuccess(false);
-			returnJson.setMessage("登录失败！");
-			return returnJson.toJSON();
-		}
-		return returnJson.toJSON();
+		JSONObject res=new JSONObject();
+		res.put("status", "1");
+		return res.toJSONString();
+	}
+*/
+	@RequestMapping(value = "/register", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String register(HttpServletRequest request, HttpServletResponse response) throws Exception {
+		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+		String orgID=request.getParameter("orgID");
+		String orgName=request.getParameter("orgName");
+		String password=request.getParameter("password");
+		int iouLimit = Integer.parseInt(request.getParameter("iouLimit"));
+		
+		//注册操作
+//		IOUService.initObj();
+//		IOUService.initIouLimitData(orgID, orgName, password, iouLimit);
+		IouLimitEntity iouLimitEntity = new IouLimitEntity();
+	    long now=System.currentTimeMillis();
+		String createTime = Utils.sdf(now);
+		iouLimitEntity.setOrgID(orgID);
+		iouLimitEntity.setOrgName(orgName);
+		iouLimitEntity.setPassword(password);
+		iouLimitEntity.setIouLimit(iouLimit);
+		iouLimitEntity.setCreateTime(createTime);
+		iouLimitEntity.setUpdateTime(createTime);
+		//检查一下本地有没有已经注册了的机构
+		
+		boolean isSuccess = iouLimitEntityService.addIouLimitEntity(iouLimitEntity);
+		
+		
+		HttpSession session=request.getSession();
+		
+		JSONObject res=new JSONObject();
+		res.put("status", "1");
+		return res.toJSONString();
 	}
 	
+	
+	@RequestMapping(value = "/test", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String test(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+		System.out.println(request.getParameter("username")+"   @@@@@");
+		return "666";
+	}
+	/*
 	@RequestMapping(value = "/logout", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String logout(@RequestParam("data") String date, HttpServletRequest request, HttpServletResponse response) {
+	public String logout(HttpServletRequest request, HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
-		ReturnJson returnJson = new ReturnJson();
 		
-		String sessionId = request.getParameter("sessionId");
-        if(sessionId == null) {
-        	String data = request.getParameter("data");
-            sessionId = (String)JSON.parseObject(data).get("sessionId");
-        }
+		HttpSession session=request.getSession();
+		session.invalidate();
+		
+		JSONObject res=new JSONObject();
+		res.put("status", "1");
+		return res.toJSONString();
+	}
+	
+	@RequestMapping(value = "/ioulist", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String ioulist(HttpServletRequest request, HttpServletResponse response) {
+		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+		int pageNum=Integer.parseInt(request.getParameter("pageNum"));
+		int pageSize=Integer.parseInt(request.getParameter("pageSize"));
+		//String pageSize=request.getParameter("pageSize");
+		
+		HttpSession session=request.getSession();
+		String orgID=(String) session.getAttribute("orgID");
+		
+		//获取iou列表操作
+		List<IouRecord> tem = iouRecordService.getIouRecordList(pageNum, pageSize);
+		
+		JSONArray res=new JSONArray();
+		for (int i=0;i<tem.size();i++) {
+			JSONObject xxx = new JSONObject();
+			xxx.put("iouId", tem.get(i).getIouId());
+			xxx.put("fromOrg", tem.get(i).getFromOrg());
+			xxx.put("recOrg", tem.get(i).getRecvOrg());
+			xxx.put("transTime", tem.get(i).getTransTime());
+			xxx.put("updateTime", tem.get(i).getUpdateTime());
+			xxx.put("amount", tem.get(i).getAmount());
+			xxx.put("paidAmt", tem.get(i).getPaidAmt());
+			xxx.put("iouStatus", tem.get(i).getIouStatus());
+			
+			res.add(xxx);
+		}
+		return res.toJSONString();
+	}
+	
+	@RequestMapping(value = "/get_ioulist_num", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String get_ioulist_num(HttpServletRequest request, HttpServletResponse response) {
+		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+		
+		HttpSession session=request.getSession();
+		String orgID=(String) session.getAttribute("orgID");
+		
+		//获取ioulist数目
+		
+		JSONObject res=new JSONObject();
+		res.put("amount", "99");
+		return res.toJSONString();
+	}
+	
+	@RequestMapping(value = "/recycle_iou", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String recycle_iou(HttpServletRequest request, HttpServletResponse response) {
+		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+		String iouId=request.getParameter("iouId");
+		//String amount=request.getParameter("amount");
+		int amount=Integer.parseInt(request.getParameter("amount"));
+		
+		//HttpSession session=request.getSession();
+		//String orgID = (String) session.getAttribute("orgID");
+		iouLimitEntityService.recycleIou(iouId, amount);
+		
+		JSONObject res=new JSONObject();
+		res.put("status", "1");
+		return res.toJSONString();
+	}
+	
+	@RequestMapping(value = "/update_iou_limit", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String update_iou_limit(HttpServletRequest request, HttpServletResponse response) {
+		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+		String amount=request.getParameter("amount");
+		
+		HttpSession session=request.getSession();
+		String orgID = (String) session.getAttribute("orgID");
+		
+		//更新白条额度操作
+		
+		JSONObject res=new JSONObject();
+		res.put("status", "1");
+		return res.toJSONString();
+	}
+	
+	@RequestMapping(value = "/transactionlist", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String transactionlist(HttpServletRequest request, HttpServletResponse response) {
+		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+		String pageNum=request.getParameter("pageNum");
+		String pageSize=request.getParameter("pageSize");
+		
+		HttpSession session=request.getSession();
+		String orgID=(String) session.getAttribute("orgID");
+		
+		//交易列表操作
+		
+		JSONArray res=new JSONArray();
+		for (int i=0;i<2;i++) {
+			//JSONObject xxx = new JSONObject;
+			// 各种put
+			//res.add(xxx);
+		}
+		return res.toJSONString();
+	}
+	
+	@RequestMapping(value = "/get_transaction_num", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String get_transaction_num(HttpServletRequest request, HttpServletResponse response) {
+		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+		
+		HttpSession session=request.getSession();
+		String orgID=(String) session.getAttribute("orgID");
+		
+		//获取get_transaction_num数目
+		
+		JSONObject res=new JSONObject();
+		res.put("amount", "99");
+		return res.toJSONString();
+	}
+	
+	@RequestMapping(value = "/add_transaction", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String add_transaction(HttpServletRequest request, HttpServletResponse response) {
+		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+		String saleOrg=request.getParameter("saleOrg");
+		String buyOrg=request.getParameter("buyOrg");
+		String transType=request.getParameter("transType");
+		String amount=request.getParameter("amount");
+		String conFile=request.getParameter("conFile");
+		
+		HttpSession session=request.getSession();
+		String orgID = (String) session.getAttribute("orgID");
+		
+		//添加交易操作
+		
+		JSONObject res=new JSONObject();
+		res.put("status", "1");
+		return res.toJSONString();
+	}
+	
+	@RequestMapping(value = "/get_transaction/{con_id}", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String get_transaction(@PathVariable("con_id") String con_id, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
+		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+		System.out.println("Product Id  ff : " + con_id); 
+		
+		//根据合同获得交易信息
+		
+		
+		JSONObject res=new JSONObject();
+		res.put("zzz", "xxxx");
+		//te.fluentAdd(zz);
+		return res.toJSONString();
+	}
+	
+//	@RequestMapping(value="/product/{productId}", produces = "application/json;charset=UTF-8") 
+//	public String getProduct(@PathVariable("productId") String productId, HttpServletResponse response, HttpSession session){ 
+//	    System.out.println("Product Id : " + productId); 
+//	    return "hello"; 
+//	} 
+	
 
-        HttpSession session = MySessionContext.getSession(sessionId);
-        
-        if(session == null || session.getAttribute(sessionId) == null) {
-        	returnJson.setSuccess(false);
-            returnJson.setMessage("已登出");
-            
-            return returnJson.toJSON();
-        }
-		
-        MySessionContext.DelSession(session);
-		
-		returnJson.setSuccess(true);
-		returnJson.setMessage("登出成功！");
-
-		return returnJson.toJSON();
-	}
 	
-	@RequestMapping(value = "/addUser", produces = "application/json;charset=UTF-8")
+	@RequestMapping(value = "/product/{productId}", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String addUser(@RequestParam("data") String date, HttpServletResponse response) {
+	public String test(@PathVariable("productId") String productId, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
-		
-		User user = User.parse(date);
-		
-		ReturnJson returnJson = new ReturnJson();
-		
-		if (null == user || Utils.stringIsNull(user.getUserId()) || Utils.stringIsNull(user.getPassword()) ) {
-			returnJson.setSuccess(false);
-			returnJson.setMessage("用户数据不能为空！");
-			return returnJson.toJSON();
+		System.out.println("Product Id  ff : " + productId); 
+		JSONObject zz=new JSONObject();
+		zz.put("zzz", "xxxx");
+		System.out.println(zz.toJSONString()); 
+		JSONArray te=new JSONArray();
+		te.add(zz);
+		for(int i=0;i<2;i++) {
+		JSONObject zzz =new JSONObject();
+		zzz.put("ddd", "ddsss");
+		te.add(zzz);
 		}
-		
-		try {
-			//密码不存明文，存MD5加密后的值
-			user.setPassword(MD5Util.MD5Encode(user.getPassword(), "UTF-8"));
-			
-			userService.add(user);
-			returnJson.setSuccess(true);
-			returnJson.setMessage("添加用户成功！");
-		}catch(Exception e) {
-			returnJson.setSuccess(false);
-			returnJson.setMessage("添加用户失败！");
-			return returnJson.toJSON();
-		}
-		
-		return returnJson.toJSON();
+		//te.fluentAdd(zz);
+		return te.toJSONString();
 	}
-	
-	@RequestMapping(value = "/checkUser", produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public String checkUser(@RequestParam("data") String date, HttpServletResponse response) {
-		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
-		
-		User user = User.parse(date);
-		
-		ReturnJson returnJson = new ReturnJson();
-		
-		if (null == user || Utils.stringIsNull(user.getUserId())) {
-			returnJson.setSuccess(false);
-			returnJson.setMessage("用户编号不能为空！");
-			return returnJson.toJSON();
-		}
-		
-		try {
-			User userResult = userService.getById(user.getUserId());
-			if(userResult == null) {
-				returnJson.setSuccess(true);
-				returnJson.setMessage("检查用户成功，无重复用户！");
-			}else {
-				returnJson.setSuccess(false);
-				returnJson.setMessage("检查用户失败，用户已存在！");
-			}
-			
-		}catch(Exception e) {
-			returnJson.setSuccess(false);
-			returnJson.setMessage("检查用户失败！");
-			return returnJson.toJSON();
-		}
-		
-		return returnJson.toJSON();
-	}
-	
-	@RequestMapping(value = "/queryUser", produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public String queryUser(@RequestParam("data") String data, HttpServletResponse response) {
-		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
-		ReturnJson returnJson = new ReturnJson();
-		try {
-			User user = User.parse(data);
-			PageHelper.startPage(user.getPageNum(), user.getPageSize());
-			List<User> userList = userService.queryUser(user);
-			PageInfo<User> page = new PageInfo<User>(userList, user.getPageSize());
-			
-	        returnJson.setObj(page);
-			returnJson.setSuccess(true);
-			returnJson.setMessage("查询用户列表成功！");
-		} catch (Exception e) {
-			// TODO: handle exception
-			returnJson.setSuccess(false);
-			returnJson.setMessage("查询用户列表失败！");
-			return returnJson.toJSON();
-		}
-        
-		return returnJson.toJSON();
-	}
-	
-	
-	@RequestMapping(value = "/updateUser", produces = "application/json;charset=UTF-8")
-	@ResponseBody
-	public String updateUser(@RequestParam("data") String date, HttpServletResponse response) {
-		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
-		//非空校验放到serverimpl中处理，controller内部暂不处理
-		
-		User user = User.parse(date);
-		
-		ReturnJson returnJson = new ReturnJson();
-		
-		if (null == user || Utils.stringIsNull(user.getUserId()) ) {
-			returnJson.setSuccess(false);
-			returnJson.setMessage("用户数据不能为空！");
-			return returnJson.toJSON();
-		}
-		
-		try {
-			userService.updateUser(user);
-			returnJson.setSuccess(true);
-			returnJson.setMessage("修改用户成功！");
-		}catch(Exception e) {
-			returnJson.setSuccess(false);
-			returnJson.setMessage("修改用户失败！");
-			return returnJson.toJSON();
-		}
-		
-		return returnJson.toJSON();
-	}
-	
+*/
 }

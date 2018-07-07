@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.formssi.dao.ITransactionDao">
+    <!-- 目的：为dao接口方法提供sql语句配置 -->
+    <insert id="addTransaction" parameterType="com.formssi.entity.Transaction">
+        <!-- 具体的sql -->
+        INSERT INTO `transaction` (`conID`, `saleOrg`, `buyOrg`, `transType`, `amount`, `conHash`, `lastestStatus`, `transTime`, `updateTime`) VALUES ('${transaction.conID}','${transaction.saleOrg}','${transaction.buyOrg}','${transaction.transType}',${transaction.amount},'${transaction.conHash}','${transaction.latestStatus}','${transaction.transTime}','${transaction.updateTime}');
+    </insert>
+    
+    <update id="updateTransactionStatusByConID" >
+    	UPDATE `transaction` SET `lastestStatus`='${status}' WHERE `conID`='${conID}';
+    </update>
+    
+    <select id="getTransactionByConID" parameterType="java.lang.String" resultType="com.formssi.entity.Transaction">
+    	SELECT * FROM `transaction` WHERE `conID`='${conID}';
+    </select>
+    
+    <select id="getAllTransaction" resultType="com.formssi.entity.Transaction">
+    	SELECT * FROM `transaction`;
+    </select>
+</mapper>

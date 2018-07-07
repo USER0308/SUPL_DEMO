@@ -30,7 +30,7 @@
                         <property name="connectionsStr">
 							<list>
 								<!-- <value>node0@172.21.64.214:52300</value> -->
-								<value>node0@172.21.64.214:52300</value>
+								<value>node0@47.106.237.105:35500</value>
 								<!-- <value>node0@26.223.1.168:52300</value> -->
 							</list>
 						</property>

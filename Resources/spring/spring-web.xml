@@ -24,14 +24,14 @@
 	 <mvc:default-servlet-handler/>
 	 
 	 <!-- 拦截器 -->
-    <mvc:interceptors>
-        <!-- 多个拦截器，顺序执行 -->
+    <!-- <mvc:interceptors>
+        多个拦截器，顺序执行
         <mvc:interceptor>
             <mvc:mapping path="/**"/>
-            <!-- <mvc:exclude-mapping path="/static/*"/> -->
+            <mvc:exclude-mapping path="/static/*"/>
             <bean class="com.formssi.interceptor.LoginInterceptor"></bean>
         </mvc:interceptor>
-    </mvc:interceptors>
+    </mvc:interceptors> -->
 	 
 	 <!-- 3.配置jsp 显示ViewResolver -->
 	 <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">

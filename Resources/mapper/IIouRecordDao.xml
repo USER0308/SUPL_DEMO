@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.formssi.dao.IIouRecordDao">
+    <!-- 目的：为dao接口方法提供sql语句配置 -->
+    <insert id="addIouRecord" parameterType="com.formssi.entity.IouRecord">
+        <!-- 具体的sql -->
+        INSERT INTO `iouRecord` (`iouId`, `fromOrg`, `recvOrg`, `transTime`, `amount`, `paidAmt`, `iouStatus`, `updateTime`) VALUES ('${iouRecord.iouId}','${iouRecord.fromOrg}','${iouRecord.recvOrg}','${iouRecord.transTime}',${iouRecord.amount},${iouRecord.paidAmt},'${iouRecord.iouStatus}','${iouRecord.updateTime}');
+    </insert>
+    
+    <update id="updateIouStatusByIouId">
+		UPDATE `iouRecord` SET `iouStatus`='${iouStatus}' WHERE `iouId`='${iouId}';
+    </update>
+    
+    <select id="queryIouRecordByIouId" resultType="com.formssi.entity.IouRecord" parameterType="java.lang.String">
+        <!-- 具体的sql -->
+        SELECT * FROM `iouRecord` WHERE `iouId`='${iouId}';
+    </select>
+    
+    <select id="queryAllIouRecordByFromOrg" parameterType="java.lang.String">
+    	SELECT * FROM `iouRecord` WHERE `fromOrg`='${fromOrg}';
+    </select>
+
+	<select id="queryAllIouRecord" resultType="com.formssi.entity.IouRecord">
+		SELECT * FROM `iouRecord`;
+	</select>
+</mapper>
