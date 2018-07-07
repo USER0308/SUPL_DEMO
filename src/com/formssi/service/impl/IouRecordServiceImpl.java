@@ -27,9 +27,10 @@ public class IouRecordServiceImpl implements IIouRecordService{
 	@Override
 	public List<IouRecord> getIouRecordList(int pageNo,int pageSize) {
 		// TODO Auto-generated method stub
+		pageNo--;
 		List<IouRecord> allIouRecord = iiouRecordDao.queryAllIouRecord();
 		List<IouRecord> result = new ArrayList<>();
-		for(int i=pageNo*pageSize;i<(pageNo+1)*pageSize;i++) {
+		for(int i=pageNo*pageSize;i<allIouRecord.size()&&i<(pageNo+1)*pageSize;i++) {
 			result.add(allIouRecord.get(i));
 		}
 		return result;

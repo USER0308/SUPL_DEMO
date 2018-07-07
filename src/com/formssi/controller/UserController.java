@@ -20,6 +20,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.formssi.entity.IouLimitEntity;
 import com.formssi.entity.IouRecord;
+import com.formssi.entity.Transaction;
 import com.formssi.service.IIouLimitEntityService;
 import com.formssi.service.IIouRecordService;
 import com.formssi.service.ITransactionService;
@@ -59,12 +60,16 @@ public class UserController {
 		String password=request.getParameter("password");
 		
 		//登录操作
-		
-		HttpSession session=request.getSession();
-		session.setAttribute("orgID", orgID);
+		boolean isSuccess=iouLimitEntityService.checkPasswordByOrgID(password, orgID);
 		
 		JSONObject res=new JSONObject();
-		res.put("status", "1");
+		if(isSuccess) {
+			res.put("status", "1");
+			HttpSession session=request.getSession();
+			session.setAttribute("orgID", orgID);
+		}
+		else 
+			res.put("status", "0");
 		return res.toJSONString();
 	}
 
@@ -73,7 +78,7 @@ public class UserController {
 	public String register(HttpServletRequest request, HttpServletResponse response) throws Exception {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		String orgID=request.getParameter("orgID");
-		String orgName=request.getParameter("orgName");
+		String orgName=request.getParameter("orgname");
 		String password=request.getParameter("password");
 		int iouLimit = Integer.parseInt(request.getParameter("iouLimit"));
 		
@@ -157,9 +162,10 @@ public class UserController {
 		String orgID=(String) session.getAttribute("orgID");
 		
 		//获取ioulist数目
+		int tem =iouRecordService.getAllIouRecord().size();
 		
 		JSONObject res=new JSONObject();
-		res.put("amount", "99");
+		res.put("amount", tem);
 		return res.toJSONString();
 	}
 	
@@ -225,19 +231,30 @@ public class UserController {
 	@ResponseBody
 	public String transactionlist(HttpServletRequest request, HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
-		String pageNum=request.getParameter("pageNum");
-		String pageSize=request.getParameter("pageSize");
+		int pageNum=Integer.parseInt(request.getParameter("pageNum"));
+		int pageSize=Integer.parseInt(request.getParameter("pageSize"));
 		
 		HttpSession session=request.getSession();
 		String orgID=(String) session.getAttribute("orgID");
 		
 		//交易列表操作
+		List<Transaction> tem = transactionService.queryTransaction(pageNum, pageSize);//(pageNum, pageSize);
 		
 		JSONArray res=new JSONArray();
-		for (int i=0;i<2;i++) {
-			//JSONObject xxx = new JSONObject;
-			// 各种put
-			//res.add(xxx);
+		for (int i=0;i<tem.size();i++) {
+			JSONObject xxx = new JSONObject();
+			xxx.put("conID", tem.get(i).getConID());
+			xxx.put("saleOrg", tem.get(i).getSaleOrg());
+			xxx.put("buyOrg", tem.get(i).getBuyOrg());
+			xxx.put("transType", tem.get(i).getTransType());
+			xxx.put("transTime", tem.get(i).getTransTime());
+			xxx.put("updateTime", tem.get(i).getUpdateTime());
+			xxx.put("amount", tem.get(i).getAmount());
+			xxx.put("conHash", tem.get(i).getConHash());
+			xxx.put("latestStatus", tem.get(i).getLatestStatus());
+			
+			
+			res.add(xxx);
 		}
 		return res.toJSONString();
 	}
@@ -251,9 +268,10 @@ public class UserController {
 		String orgID=(String) session.getAttribute("orgID");
 		
 		//获取get_transaction_num数目
+		int tem=transactionService.getAllTransaction().size();
 		
 		JSONObject res=new JSONObject();
-		res.put("amount", "99");
+		res.put("amount", tem);
 		return res.toJSONString();
 	}
 	
@@ -264,13 +282,22 @@ public class UserController {
 		String saleOrg=request.getParameter("saleOrg");
 		String buyOrg=request.getParameter("buyOrg");
 		String transType=request.getParameter("transType");
-		String amount=request.getParameter("amount");
+		long amount=Integer.parseInt(request.getParameter("amount"));
 		String conFile=request.getParameter("conFile");
 		
 		HttpSession session=request.getSession();
 		String orgID = (String) session.getAttribute("orgID");
 		
 		//添加交易操作
+		try {
+			transactionService.addTransactionRecord(saleOrg, buyOrg, transType, amount, "P");
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		JSONObject res=new JSONObject();
 		res.put("status", "1");
@@ -284,10 +311,20 @@ public class UserController {
 		System.out.println("Product Id  ff : " + con_id); 
 		
 		//根据合同获得交易信息
+		Transaction tran = transactionService.getTransactionByConId(con_id);
 		
 		
 		JSONObject res=new JSONObject();
-		res.put("zzz", "xxxx");
+		res.put("conID", tran.getConID());
+		res.put("saleOrg", tran.getSaleOrg());
+		res.put("buyOrg", tran.getBuyOrg());
+		res.put("transType", tran.getTransType());
+		res.put("transTime", tran.getTransTime());
+		res.put("updateTime", tran.getUpdateTime());
+		res.put("amount", tran.getAmount());
+		res.put("conHash", tran.getConHash());
+		res.put("latestStatus", tran.getLatestStatus());
+		
 		//te.fluentAdd(zz);
 		return res.toJSONString();
 	}

@@ -141,10 +141,11 @@ public class TransactionServiceImpl implements ITransactionService {
 	@Override
 	public List<Transaction> queryTransaction(int pageNo, int pageSize) {
 		// TODO Auto-generated method stub
+		pageNo--;
 		List<Transaction> allTransaction = itransactionDao.getAllTransaction();
 //		System.out.println("读取所有transaction...");
 		List<Transaction> result = new ArrayList<>();
-		for(int i=pageNo*pageSize;i<(pageNo+1)*pageSize;i++) {
+		for(int i=pageNo*pageSize;i<allTransaction.size()&&i<(pageNo+1)*pageSize;i++) {
 			result.add(allTransaction.get(i));
 		}
 //		System.out.println("复制transaction...得到的size为");
