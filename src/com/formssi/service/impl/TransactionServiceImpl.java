@@ -2,13 +2,16 @@ package com.formssi.service.impl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.formssi.dao.IIouLimitEntityDao;
+import com.formssi.dao.IIouRecordDao;
 import com.formssi.dao.ITransactionDao;
 import com.formssi.entity.IouLimitEntity;
+import com.formssi.entity.IouRecord;
 import com.formssi.entity.Transaction;
 import com.formssi.service.ITransactionService;
 
@@ -21,9 +24,29 @@ public class TransactionServiceImpl implements ITransactionService {
 	private ITransactionDao itransactionDao;
 	@Autowired(required=false)  
 	private IIouLimitEntityDao iiouLimitEntityDao;
+	@Autowired(required=false)
+	private IIouRecordDao iiouRecordDao;
+	
+	
 	@Override
-	public boolean addTransactionRecord(Transaction transaction) {
+	public boolean addTransactionRecord(String saleOrg,String buyOrg,String transType,long amount,String latestStatus)throws InterruptedException, ExecutionException{  // 录入交易
 		// TODO Auto-generated method stub
+		
+		long now=System.currentTimeMillis();
+		String transTime = Utils.sdf(now);
+		String conID="conID"+transTime;               // 合同号
+	    String conHash="conHash";
+		Transaction transaction = new Transaction();
+		transaction.setConID(conID);
+		transaction.setSaleOrg(saleOrg);
+		transaction.setBuyOrg(buyOrg);
+		transaction.setTransType(transType);
+		transaction.setAmount(amount);
+		transaction.setLatestStatus(latestStatus);
+		transaction.setConHash(conHash);
+		transaction.setTransTime(transTime);
+		transaction.setUpdateTime(transTime);
+		
 		if(transaction.getAmount()<= 0) {
 			// 确保数据的合理性
 			System.out.println("白条金额不可小于0");
@@ -38,6 +61,34 @@ public class TransactionServiceImpl implements ITransactionService {
 		}else {
 			itransactionDao.addTransaction(transaction);
 			System.out.println("创建交易");
+			
+			
+			IOUService.addTransaction(saleOrg, buyOrg, transType, amount, latestStatus);
+			
+			IouRecord iouRecord =new IouRecord();
+			iouRecord.setAmount((int)amount);
+			iouRecord.setIouId(conID);
+			iouRecord.setFromOrg(buyOrg);
+			iouRecord.setRecvOrg(saleOrg);
+			iouRecord.setTransTime(transTime);
+			iouRecord.setPaidAmt(0);
+			iouRecord.setIouStatus("P");
+			iouRecord.setUpdateTime(transTime);
+			
+			
+			
+			iiouRecordDao.addIouRecord(iouRecord);
+			
+			IouLimitEntity iouLimitEntity=iiouLimitEntityDao.queryIouLimitEntityByOrgID(buyOrg);//queryEntityByOrgName(buyOrg);
+			if(iouLimitEntity != null) {
+				
+				int tem = (int) (iouLimitEntity.getIouLimit()-amount);
+				
+				iiouLimitEntityDao.updateIouLimitByOrgID(tem, transTime, buyOrg);
+			}
+			else {
+				return false;
+			}
 			return true;
 		}
 	}
@@ -55,6 +106,17 @@ public class TransactionServiceImpl implements ITransactionService {
 			long now=System.currentTimeMillis();
 			String updateTime = Utils.sdf(now);
 			tmp.setUpdateTime(updateTime);
+			
+			try {
+				IOUService.updateTransStatus(conId, status);
+			} catch (InterruptedException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			
 			return true;
 		}
 	}
