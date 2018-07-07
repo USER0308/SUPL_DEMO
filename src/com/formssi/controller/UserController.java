@@ -61,6 +61,8 @@ public class UserController {
 	@Autowired
 	private ITransactionService transactionService;
 	
+	private String basePath="E:/file/";  //合同存储的根目录
+	
 
 	@RequestMapping(value = "/login", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -126,6 +128,10 @@ public class UserController {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		//System.out.println(request.getParameter("username")+"   @@@@@");
 		//System.out.println("file : "+request.getParameter("file"));
+		session = request.getSession();
+		//String orgID  = (String) session.getAttribute("orgID");
+		String orgID = "user01";
+		System.out.println("orgID: "+orgID);
 		
         //获取表单(POST)数据
         ServletInputStream in = request.getInputStream();//此方法得到所有的提交信息，不仅仅只有内容
@@ -144,15 +150,46 @@ public class UserController {
         
 		//FileInputStream fis = new FileInputStream("src\\File\\Outfile.java");//读取文件
         
-		FileOutputStream fos = new FileOutputStream("E:\\out.txt");//保存文件
+        File directory = new File("");//设定为当前文件夹 
+        try{ 
+            System.out.println(directory.getCanonicalPath());//获取标准的路径 
+            System.out.println(directory.getAbsolutePath());//获取绝对路径
+            System.out.println(directory.getPath());//获取绝对路径
+            
+        }catch(Exception e){} 
+        
+        
+        
+        String temPath = basePath+"/"+orgID+"/";
+        
+        File f = new File(temPath);
+        
+        if(!f.exists()){
+            f.mkdirs();//创建目录
+        }
+        
+		FileOutputStream fos = new FileOutputStream(temPath+"out.txt");//保存文件
 		int len;
 		Byte[] b =new Byte[1024];
 		while((len=in.read())!=-1){//判读文件内容是否存在
-			System.out.print((char)len);//打印文件
+			//System.out.print((char)len);//打印文件
 			fos.write(len);//写入文件
 		}
 		in.close();
 		fos.close();
+		
+//		File file = new File(path, fileName);
+//        
+//        if(!file.exists()){
+//            
+//            try {
+//                file.createNewFile();
+//            } catch (IOException e) {
+//                // TODO Auto-generated catch block
+//                e.printStackTrace();
+//            }
+//            
+//        }
 	
 		
 		
