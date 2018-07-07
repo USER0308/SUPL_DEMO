@@ -3,6 +3,7 @@
         <wb-resource deploy-path="/" source-path="/WebContent" tag="defaultRootSource"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/src"/>
         <wb-resource deploy-path="/WEB-INF/classes" source-path="/Resources"/>
+        <wb-resource deploy-path="/WEB-INF/classes" source-path="/file"/>
         <property name="java-output-path" value="/blockchain/build/classes"/>
         <property name="context-root" value="blockchain"/>
     </wb-module>
