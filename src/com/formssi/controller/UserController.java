@@ -19,7 +19,10 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.formssi.entity.IouLimitEntity;
+import com.formssi.entity.IouRecord;
 import com.formssi.service.IIouLimitEntityService;
+import com.formssi.service.IIouRecordService;
+import com.formssi.service.ITransactionService;
 import com.formssi.service.impl.IOUService;
 //import com.formssi.entity.ReturnJson;
 //import com.formssi.entity.User;
@@ -41,12 +44,12 @@ public class UserController {
 	
 	@Autowired
 	private IIouLimitEntityService iouLimitEntityService;
-//	@Autowired
-//	private IIouRecordService iouRecordService;
-//	@Autowired
-//	private ITransactionService transactionService;
+	@Autowired
+	private IIouRecordService iouRecordService;
+	@Autowired
+	private ITransactionService transactionService;
 	
-/*	
+
 	@RequestMapping(value = "/login", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String login(HttpServletRequest request, HttpServletResponse response) {
@@ -64,7 +67,7 @@ public class UserController {
 		res.put("status", "1");
 		return res.toJSONString();
 	}
-*/
+
 	@RequestMapping(value = "/register", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String register(HttpServletRequest request, HttpServletResponse response) throws Exception {
@@ -77,24 +80,18 @@ public class UserController {
 		//注册操作
 //		IOUService.initObj();
 //		IOUService.initIouLimitData(orgID, orgName, password, iouLimit);
-		IouLimitEntity iouLimitEntity = new IouLimitEntity();
-	    long now=System.currentTimeMillis();
-		String createTime = Utils.sdf(now);
-		iouLimitEntity.setOrgID(orgID);
-		iouLimitEntity.setOrgName(orgName);
-		iouLimitEntity.setPassword(password);
-		iouLimitEntity.setIouLimit(iouLimit);
-		iouLimitEntity.setCreateTime(createTime);
-		iouLimitEntity.setUpdateTime(createTime);
-		//检查一下本地有没有已经注册了的机构
 		
-		boolean isSuccess = iouLimitEntityService.addIouLimitEntity(iouLimitEntity);
+		boolean isSuccess = iouLimitEntityService.addIouLimitEntity(orgID,orgName,password,iouLimit);
 		
 		
 		HttpSession session=request.getSession();
+		session.setAttribute("orgID", orgID);
 		
 		JSONObject res=new JSONObject();
-		res.put("status", "1");
+		if(isSuccess)
+			res.put("status", "1");
+		else 
+			res.put("status", "0");
 		return res.toJSONString();
 	}
 	
@@ -106,7 +103,7 @@ public class UserController {
 		System.out.println(request.getParameter("username")+"   @@@@@");
 		return "666";
 	}
-	/*
+	
 	@RequestMapping(value = "/logout", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String logout(HttpServletRequest request, HttpServletResponse response) {
@@ -176,7 +173,15 @@ public class UserController {
 		
 		//HttpSession session=request.getSession();
 		//String orgID = (String) session.getAttribute("orgID");
-		iouLimitEntityService.recycleIou(iouId, amount);
+		try {
+			iouLimitEntityService.recycleIou(iouId, amount);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 		JSONObject res=new JSONObject();
 		res.put("status", "1");
@@ -187,16 +192,33 @@ public class UserController {
 	@ResponseBody
 	public String update_iou_limit(HttpServletRequest request, HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
-		String amount=request.getParameter("amount");
+		int amount=Integer.parseInt(request.getParameter("amount"));
 		
 		HttpSession session=request.getSession();
 		String orgID = (String) session.getAttribute("orgID");
 		
 		//更新白条额度操作
+		String transTime = Utils.sdf(System.currentTimeMillis());
+		boolean isSuccess=false;
+		try {
+			isSuccess = iouLimitEntityService.setIouLimit(amount, transTime, orgID);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}//(orgID,orgName,password,iouLimit);
+		
+		
 		
 		JSONObject res=new JSONObject();
-		res.put("status", "1");
+		if(isSuccess)
+			res.put("status", "1");
+		else 
+			res.put("status", "0");
 		return res.toJSONString();
+		
 	}
 	
 	@RequestMapping(value = "/transactionlist", produces = "application/json;charset=UTF-8")
@@ -296,5 +318,5 @@ public class UserController {
 		//te.fluentAdd(zz);
 		return te.toJSONString();
 	}
-*/
+
 }
