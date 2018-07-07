@@ -189,28 +189,28 @@ public class IOUService {
 	}
 	
 	public static String initIouLimitData(String orgID,String orgName,String password,int iouLimit) throws InterruptedException, ExecutionException {
-		IouLimitEntity iouLimitEntity = new IouLimitEntity();
+//		IouLimitEntity iouLimitEntity = new IouLimitEntity();
 	    long now=System.currentTimeMillis();
 		String createTime = Utils.sdf(now);
-		iouLimitEntity.setOrgID(orgID);
-		iouLimitEntity.setOrgName(orgName);
-		iouLimitEntity.setPassword(password);
-		iouLimitEntity.setIouLimit(iouLimit);
-		iouLimitEntity.setCreateTime(createTime);
-		iouLimitEntity.setUpdateTime(createTime);
-		//检查一下本地有没有已经注册了的机构
-		
-		boolean isSuccess = iouLimitEntityServiceImpl.addIouLimitEntity(orgID,orgName,password,iouLimit);
-		if(!isSuccess) {
-			//创建失败
-			return "创建失败,已经有该机构";
-		}
+//		iouLimitEntity.setOrgID(orgID);
+//		iouLimitEntity.setOrgName(orgName);
+//		iouLimitEntity.setPassword(password);
+//		iouLimitEntity.setIouLimit(iouLimit);
+//		iouLimitEntity.setCreateTime(createTime);
+//		iouLimitEntity.setUpdateTime(createTime);
+//		//检查一下本地有没有已经注册了的机构
+//		
+//		boolean isSuccess = iouLimitEntityServiceImpl.addIouLimitEntity(orgID,orgName,password,iouLimit);
+//		if(!isSuccess) {
+//			//创建失败
+//			return "创建失败,已经有该机构";
+//		}
 		//区块链上新建
-		TransactionReceipt receipt = contractTransaction.initIouLimitData( new Utf8String(iouLimitEntity.getOrgID()),
-				new Utf8String(iouLimitEntity.getOrgName()),
-				new Int256(iouLimitEntity.getIouLimit()),
-				new Utf8String(iouLimitEntity.getCreateTime()),
-				new Utf8String(iouLimitEntity.getUpdateTime())
+		TransactionReceipt receipt = contractTransaction.initIouLimitData( new Utf8String(orgID),
+				new Utf8String(orgName),
+				new Int256(iouLimit),
+				new Utf8String(createTime),
+				new Utf8String(createTime)
 				).get();
 		List<InitIouLimitDataEventResponse> responses = contractTransaction.getInitIouLimitDataEvents(receipt);
 		String result=responses.get(0)._json.toString(); 
@@ -220,7 +220,7 @@ public class IOUService {
 		//设置数据库的limit
 		long now=System.currentTimeMillis();
 		String updateTime = Utils.sdf(now); // 获取当前时间
-		iouLimitEntityServiceImpl.setIouLimit(amount, updateTime, orgID);
+		//iouLimitEntityServiceImpl.setIouLimit(amount, updateTime, orgID);
 		//更改区块链上的
 		TransactionReceipt receipt = contractTransaction.setIouLimit(new Utf8String(orgID), new Int256(amount)).get();
 		logger.info("setIouLimit receipt transactionHash:{}",receipt.getTransactionHash());
@@ -261,10 +261,10 @@ public class IOUService {
 //	}
 	public static String iouRecycle(String iouId,int amount) throws InterruptedException, ExecutionException {
 		// 修改后端数据库
-		boolean isSuccess = iouLimitEntityServiceImpl.recycleIou(iouId,amount);
-		if(!isSuccess) {
-			System.out.println("回收白条失败");
-		}
+//		boolean isSuccess = iouLimitEntityServiceImpl.recycleIou(iouId,amount);
+//		if(!isSuccess) {
+//			System.out.println("回收白条失败");
+//		}
 		//更新区块链
 		TransactionReceipt receipt = contractTransaction.iouRecycle(new Utf8String(iouId),new Int256(amount)).get();
 		logger.info("iouRecycle receipt transactionHash:{}",receipt);
@@ -279,33 +279,33 @@ public class IOUService {
 		String transTime = Utils.sdf(now);
 		String conID="conID"+transTime;               // 合同号
 	    String conHash="conHash";
-		Transaction transaction = new Transaction();
-		transaction.setConID(conID);
-		transaction.setSaleOrg(saleOrg);
-		transaction.setBuyOrg(buyOrg);
-		transaction.setTransType(transType);
-		transaction.setAmount(amount);
-		transaction.setLatestStatus(latestStatus);
-		transaction.setConHash(conHash);
-		transaction.setTransTime(transTime);
-		transaction.setUpdateTime(transTime);
-		//修改后端数据库
-		boolean isSuccess = transactionServiceImpl.addTransactionRecord(transaction);
-		if(!isSuccess) {
-			System.out.println("录入出错");
-			return "录入交易出错";
-		}
+//		Transaction transaction = new Transaction();
+//		transaction.setConID(conID);
+//		transaction.setSaleOrg(saleOrg);
+//		transaction.setBuyOrg(buyOrg);
+//		transaction.setTransType(transType);
+//		transaction.setAmount(amount);
+//		transaction.setLatestStatus(latestStatus);
+//		transaction.setConHash(conHash);
+//		transaction.setTransTime(transTime);
+//		transaction.setUpdateTime(transTime);
+//		//修改后端数据库
+//		boolean isSuccess = transactionServiceImpl.addTransactionRecord(transaction);
+//		if(!isSuccess) {
+//			System.out.println("录入出错");
+//			return "录入交易出错";
+//		}
 		//更新区块链
-		logger.info("transaction's conId is "+transaction.getConID());
-		TransactionReceipt receipt = contractTransaction.addTransaction(new Utf8String(transaction.getConID()),
-				new Utf8String(transaction.getSaleOrg()),
-				new Utf8String(transaction.getBuyOrg()),
-				new Utf8String(transaction.getTransType()),
-				new Int256(transaction.getAmount()), 
-				new Utf8String(transaction.getConHash()),
-				new Utf8String(transaction.getLatestStatus()),
-				new Utf8String(transaction.getTransTime()),
-				new Utf8String(transaction.getUpdateTime())).get();
+		logger.info("transaction's conId is "+conID);
+		TransactionReceipt receipt = contractTransaction.addTransaction(new Utf8String(conID),
+				new Utf8String(saleOrg),
+				new Utf8String(buyOrg),
+				new Utf8String(transType),
+				new Int256(amount), 
+				new Utf8String(conHash),
+				new Utf8String(latestStatus),
+				new Utf8String(transTime),
+				new Utf8String(transTime)).get();
 		logger.info("addTransaction receipt transactionHash:{}",receipt.getTransactionHash());
 		logger.info("receipt's contract addr is ?"+receipt.getContractAddress());
 		List<AddTransactionEventResponse> responses = contractTransaction.getAddTransactionEvents(receipt);
@@ -316,11 +316,11 @@ public class IOUService {
 	
 	public static int updateTransStatus(String conId, String status) throws InterruptedException, ExecutionException {
 		//更新数据库
-		boolean isSuccess = transactionServiceImpl.updateTransactionStatusByConId(conId, status);
-		if(!isSuccess) {
-			System.out.println("更新交易出错");
-			return -1;
-		}
+//		boolean isSuccess = transactionServiceImpl.updateTransactionStatusByConId(conId, status);
+//		if(!isSuccess) {
+//			System.out.println("更新交易出错");
+//			return -1;
+//		}
 		//更新区块链
 		if(!TRAN_LATESTSTATE_LIST.contains(status)) {
 			logger.info("the value of IOU Status must be C or U.");
