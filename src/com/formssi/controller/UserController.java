@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 import javax.servlet.ServletInputStream;
@@ -21,6 +22,7 @@ import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -66,11 +68,11 @@ public class UserController {
 
 	@RequestMapping(value = "/login", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String login(HttpServletRequest request, HttpServletResponse response) {
+	public String login(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
-		String orgID=request.getParameter("orgID");
-		String orgName=request.getParameter("orgName");
-		String password=request.getParameter("password");
+		String orgID=map.get("orgID");
+		String orgName=map.get("orgName");
+		String password=map.get("password");
 		
 		//登录操作
 		boolean isSuccess=iouLimitEntityService.checkPasswordByOrgID(password, orgID);
@@ -88,12 +90,12 @@ public class UserController {
 
 	@RequestMapping(value = "/register", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String register(HttpServletRequest request, HttpServletResponse response) throws Exception {
+	public String register(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) throws Exception {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
-		String orgID=request.getParameter("orgID");
-		String orgName=request.getParameter("orgname");
-		String password=request.getParameter("password");
-		int iouLimit = Integer.parseInt(request.getParameter("iouLimit"));
+		String orgID=map.get("orgID");
+		String orgName=map.get("orgName");
+		String password=map.get("password");
+		int iouLimit = Integer.parseInt(map.get("iouLimit"));
 		
 		//注册操作
 //		IOUService.initObj();
@@ -177,107 +179,11 @@ public class UserController {
 		}
 		in.close();
 		fos.close();
-		
-//		File file = new File(path, fileName);
-//        
-//        if(!file.exists()){
-//            
-//            try {
-//                file.createNewFile();
-//            } catch (IOException e) {
-//                // TODO Auto-generated catch block
-//                e.printStackTrace();
-//            }
-//            
-//        }
-	
-		
-		
-//		 //1.创建文件上传工厂类
-//        DiskFileItemFactory fac = new DiskFileItemFactory();
-//        //2.创建文件上传核心类对象
-//        ServletFileUpload upload = new ServletFileUpload(fac);
-//        //【一、设置单个文件最大30M】
-//        upload.setFileSizeMax(30*1024*1024);//30M
-//        //【二、设置总文件大小：50M】
-//        upload.setSizeMax(50*1024*1024); //50M
-//
-//        //判断，当前表单是否为文件上传表单
-//        if (upload.isMultipartContent(request)){
-//
-//            try {
-//                //3.把请求数据转换为FileItem对象的集合
-//                List<FileItem> list = upload.parseRequest(request);
-//                System.out.println(list);
-//                System.out.println("   flag3   ");
-//                //遍历，得到每一个上传项
-//                for (FileItem item : list){
-//                    //判断：是普通表单项，还是文件上传表单项
-//                    if (item.isFormField()){
-//                        //普通表单x
-//                        String fieldName = item.getFieldName();//获取元素名称
-//                        String value = item.getString("UTF-8"); //获取元素值
-//                        System.out.println(fieldName+" : "+value);
-//
-//                    }else {
-//                        //文件上传表单
-//
-//                        String name = item.getName(); //上传的文件名称
-//                        /**
-//                         * 【四、文件重名】
-//                         * 对于不同的用户的test.txt文件，不希望覆盖，
-//                         * 后台处理：给用户添加一个唯一标记！
-//                         */
-//                        //a.随机生成一个唯一标记
-//                        String id = "";//UUID.randomUUID().toString();
-//                        //与文件名拼接
-//                        name = id + name;
-//                        System.out.println("   flag2   ");
-//
-//                        //【三、上传到指定目录：获取上传目录路径】
-//                        String realPath = "./file/";
-//                        //创建文件对象
-//                        File file = new File(realPath, name);
-//                        System.out.println(file);
-//                        System.out.println("   flag1   ");
-//                        
-//                        item.write(file);
-//                        item.delete();
-//                    }
-//                }
-//            } catch (Exception e) {
-//                e.printStackTrace();
-//            }
-//        }else {
-//            System.out.println("不处理！");
-//        }
+
 		
 		return "666";
 	}
 	
-    /** 上传的Item是 文件 */
-    private void processUploadedFile( FileItem item, PrintWriter out ) throws Exception {
-
-        //获取上传到服务器的路径
-        String filename = item.getName();   
-        System.out.println( filename );
-        int  index = filename.lastIndexOf("\\");
-        //截取出文件名
-        filename = filename.substring(index+1, filename.length() );
-        long fileSize = item.getSize(); //文件的大小
-
-        if( filename.endsWith("") && fileSize==0 ) {
-            return;
-        }
-
-        File uploadFile = new File( "./file/"+filename );
-        System.out.println( uploadFile.getPath() );
-        //将客户端上传的文件写入到指定路径的文件中
-        item.write(uploadFile);
-        out.println( filename+" is saved <br>" );
-        out.println( "The size of "+filename + " is "+fileSize +""
-                + "<br>");
-    }
 	
 	@RequestMapping(value = "/logout", produces = "application/json;charset=UTF-8")
 	@ResponseBody
@@ -294,10 +200,10 @@ public class UserController {
 	
 	@RequestMapping(value = "/ioulist", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String ioulist(HttpServletRequest request, HttpServletResponse response) {
+	public String ioulist(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
-		int pageNum=Integer.parseInt(request.getParameter("pageNum"));
-		int pageSize=Integer.parseInt(request.getParameter("pageSize"));
+		int pageNum=Integer.parseInt(map.get("pageNum"));
+		int pageSize=Integer.parseInt(map.get("pageSize"));
 		//String pageSize=request.getParameter("pageSize");
 		
 		HttpSession session=request.getSession();
@@ -341,11 +247,11 @@ public class UserController {
 	
 	@RequestMapping(value = "/recycle_iou", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String recycle_iou(HttpServletRequest request, HttpServletResponse response) {
+	public String recycle_iou(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		String iouId=request.getParameter("iouId");
 		//String amount=request.getParameter("amount");
-		int amount=Integer.parseInt(request.getParameter("amount"));
+		int amount=Integer.parseInt(map.get("amount"));
 		
 		//HttpSession session=request.getSession();
 		//String orgID = (String) session.getAttribute("orgID");
@@ -366,9 +272,9 @@ public class UserController {
 	
 	@RequestMapping(value = "/update_iou_limit", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String update_iou_limit(HttpServletRequest request, HttpServletResponse response) {
+	public String update_iou_limit(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
-		int amount=Integer.parseInt(request.getParameter("amount"));
+		int amount=Integer.parseInt(map.get("amount"));
 		
 		HttpSession session=request.getSession();
 		String orgID = (String) session.getAttribute("orgID");
@@ -399,10 +305,10 @@ public class UserController {
 	
 	@RequestMapping(value = "/transactionlist", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String transactionlist(HttpServletRequest request, HttpServletResponse response) {
+	public String transactionlist(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
-		int pageNum=Integer.parseInt(request.getParameter("pageNum"));
-		int pageSize=Integer.parseInt(request.getParameter("pageSize"));
+		int pageNum=Integer.parseInt(map.get("pageNum"));
+		int pageSize=Integer.parseInt(map.get("pageSize"));
 		
 		HttpSession session=request.getSession();
 		String orgID=(String) session.getAttribute("orgID");
@@ -447,13 +353,13 @@ public class UserController {
 	
 	@RequestMapping(value = "/add_transaction", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String add_transaction(HttpServletRequest request, HttpServletResponse response) {
+	public String add_transaction(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) {
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
-		String saleOrg=request.getParameter("saleOrg");
-		String buyOrg=request.getParameter("buyOrg");
-		String transType=request.getParameter("transType");
-		long amount=Integer.parseInt(request.getParameter("amount"));
-		String conFile=request.getParameter("conFile");
+		String saleOrg=map.get("saleOrg");
+		String buyOrg=map.get("buyOrg");
+		String transType=map.get("transType");
+		long amount=Integer.parseInt(map.get("amount"));
+		String conFile=map.get("conFile");
 		
 		HttpSession session=request.getSession();
 		String orgID = (String) session.getAttribute("orgID");
