@@ -177,16 +177,16 @@ public class IOUService {
 
 //	@Service("addTransaction")
 	
-	public static boolean checkPassword(String orgID,String password) {
-		boolean isSuccess = iouLimitEntityServiceImpl.checkPasswordByOrgID(password, orgID);
-		if(isSuccess) {
-			System.out.println("登录成功");
-			return true;
-		}else {
-			System.out.println("登录失败");
-			return false;
-		}
-	}
+//	public static boolean checkPassword(String orgID,String password) {
+//		boolean isSuccess = iouLimitEntityServiceImpl.checkPasswordByOrgID(password, orgID);
+//		if(isSuccess) {
+//			System.out.println("登录成功");
+//			return true;
+//		}else {
+//			System.out.println("登录失败");
+//			return false;
+//		}
+//	}
 	
 	public static String initIouLimitData(String orgID,String orgName,String password,int iouLimit) throws InterruptedException, ExecutionException {
 //		IouLimitEntity iouLimitEntity = new IouLimitEntity();

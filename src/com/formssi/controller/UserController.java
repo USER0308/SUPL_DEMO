@@ -19,8 +19,14 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -74,17 +80,17 @@ public class UserController {
 		String orgName=map.get("orgName");
 		String password=map.get("password");
 		
-		//登录操作
-		boolean isSuccess=iouLimitEntityService.checkPasswordByOrgID(password, orgID);
+		//登录操作checkPasswordByorgID
+		int isSuccess=iouLimitEntityService.checkPasswordByorgID(password, orgID, orgName);
 		
 		JSONObject res=new JSONObject();
-		if(isSuccess) {
+		if(isSuccess==1) {
 			res.put("status", "1");
 			HttpSession session=request.getSession();
 			session.setAttribute("orgID", orgID);
 		}
 		else 
-			res.put("status", "0");
+			res.put("status", isSuccess);
 		return res.toJSONString();
 	}
 
@@ -183,6 +189,25 @@ public class UserController {
 		
 		return "666";
 	}
+	
+	@RequestMapping(value="/download")
+    public ResponseEntity<byte[]> download(HttpServletRequest request,
+            Model model)throws Exception {
+    	String filename = "in.txt";
+       //下载文件路径
+       String path = "/Users/mac/Desktop/SUPL_DEMO/WebContent/WEB-INF";
+       File file = new File(path + File.separator + filename);
+       HttpHeaders headers = new HttpHeaders();  
+       //下载显示的文件名，解决中文名称乱码问题  
+       String downloadFielName = new String(filename.getBytes("UTF-8"),"iso-8859-1");
+       //通知浏览器以attachment（下载方式）打开图片
+       headers.setContentDispositionFormData("attachment", downloadFielName); 
+       //application/octet-stream ： 二进制流数据（最常见的文件下载）。
+       headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+       return new ResponseEntity<byte[]>(FileUtils.readFileToByteArray(file),    
+               headers, HttpStatus.CREATED);  
+    }
+
 	
 	
 	@RequestMapping(value = "/logout", produces = "application/json;charset=UTF-8")

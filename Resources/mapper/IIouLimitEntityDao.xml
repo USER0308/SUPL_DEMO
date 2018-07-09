@@ -31,8 +31,12 @@
         <!-- 具体的sql -->
         SELECT * FROM `iouLimitEntity` WHERE `orgID`='${orgID}';
     </select>
-    <select id = 'checkPassword' resultType='java.lang.String'  parameterType='java.lang.String'>
+<select id = 'checkPassword' resultType='java.lang.String'  parameterType='java.lang.String'>
     	<!-- 具体的sql -->
-    	SELECT `password` FROM `iouLimitEntity` WHERE `orgID`='${orgID}';
+    	SELECT password FROM `iouLimitEntity` WHERE `orgID`='${orgID}';
+    </select>
+    <select id = 'checkName' resultType='java.lang.String'  parameterType='java.lang.String'>
+    	<!-- 具体的sql -->
+    	SELECT orgName FROM `iouLimitEntity` WHERE `orgID`='${orgID}';
     </select>
 </mapper>
