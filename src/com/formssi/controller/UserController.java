@@ -96,7 +96,9 @@ public class UserController {
 		String orgName=map.get("orgName");
 		String password=map.get("password");
 		int iouLimit = Integer.parseInt(map.get("iouLimit"));
-		
+		System.out.println("orgID is:"+orgID);
+		System.out.println("orgName is:"+orgName);
+		System.out.println("password is:"+password);
 		//注册操作
 //		IOUService.initObj();
 //		IOUService.initIouLimitData(orgID, orgName, password, iouLimit);
