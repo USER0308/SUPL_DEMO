@@ -133,12 +133,18 @@ public class UserController {
 	@RequestMapping(value = "/upload", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String upload(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
+		
+		/* 上传文件到用户的临时存放区，并名为temContract，即basePath/orgID/temContract
+		 * 
+		 * */
+		
+		
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		//System.out.println(request.getParameter("username")+"   @@@@@");
 		//System.out.println("file : "+request.getParameter("file"));
 		session = request.getSession();
-		//String orgID  = (String) session.getAttribute("orgID");
-		String orgID = "user01";
+		String orgID  = (String) session.getAttribute("orgID");
+		//String orgID = "user01";
 		System.out.println("orgID: "+orgID);
 		
         //获取表单(POST)数据
@@ -176,7 +182,7 @@ public class UserController {
             f.mkdirs();//创建目录
         }
         
-		FileOutputStream fos = new FileOutputStream(temPath+"out.txt");//保存文件
+		FileOutputStream fos = new FileOutputStream(temPath+"temContract");//保存文件
 		int len;
 		Byte[] b =new Byte[1024];
 		while((len=in.read())!=-1){//判读文件内容是否存在
@@ -190,9 +196,15 @@ public class UserController {
 		return "666";
 	}
 	
-	@RequestMapping(value="/download")
-    public ResponseEntity<byte[]> download(HttpServletRequest request,
+	@RequestMapping(value="/download/{con_id}")
+    public ResponseEntity<byte[]> download(@PathVariable("con_id") String con_id, HttpServletRequest request,
             Model model)throws Exception {
+    	
+    	/* 下载basePath/contract下的con_id文件
+    	 * 
+    	 * */
+    	
+    	
     	String filename = "in.txt";
        //下载文件路径
        String path = "/Users/mac/Desktop/SUPL_DEMO/WebContent/WEB-INF";
@@ -379,6 +391,13 @@ public class UserController {
 	@RequestMapping(value = "/add_transaction", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String add_transaction(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) {
+		
+		/*
+		 * 添加交易时 要将用户临时存放区的文件移到basePath/contract下，并名为con_id
+		 * 然后计算合同hash
+		 * */
+		
+		
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		String saleOrg=map.get("saleOrg");
 		String buyOrg=map.get("buyOrg");
