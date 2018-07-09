@@ -15,4 +15,7 @@ public interface IIouLimitEntityService {
 	public boolean recycleIou(String iouId,int amount)throws InterruptedException, ExecutionException;  // 回收白条
 
 	public int checkPasswordByorgID(String password,String orgID,String Name);//检查password
+	
+	public IouLimitEntity getIouLimitEntityByConId(String orgID);//根据企业的ID来返回企业的信息
+
 }

@@ -141,5 +141,8 @@ public class IouLimitEntityServiceImpl implements IIouLimitEntityService {
 		}
 	}
 
+	public IouLimitEntity getIouLimitEntityByConId(String orgID) {//根据企业的ID来返回企业的信息
+		return iiouLimitEntityDao.queryIouLimitEntityByOrgID(orgID);
+	}
 
 }

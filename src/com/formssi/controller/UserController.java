@@ -400,6 +400,65 @@ public class UserController {
 		String saleOrg=map.get("saleOrg");
 		String buyOrg=map.get("buyOrg");
 		String transType=map.get("transType");
+		IouLimitEntity iouLimitEntityBuy = iouLimitEntityService.getIouLimitEntityByConId(buyOrg);
+		IouLimitEntity iouLimitEntitySale = iouLimitEntityService.getIouLimitEntityByConId(saleOrg);
+		if (iouLimitEntitySale == null) {
+			System.out.println("出售方交易账号输入错误");
+			return "998";
+		}
+		if (iouLimitEntityBuy == null) {
+			System.out.println("购买方交易账号输入错误");
+			return "998";
+		}
+		if(iouLimitEntityBuy.getOrgName().equals("upstream") == true) {
+			System.out.println("很抱歉你不能发起购买交易");
+			return "998";
+		}
+		if(iouLimitEntityBuy.getOrgName().equals("coreBussiness") == true) {
+			if (transType.equals("U") == true) {
+				if (iouLimitEntitySale.getOrgName().equals("upstream") == false) {
+					System.out.println("很抱歉,购买交易的对象错误");
+					return "998";
+				}
+			}
+			if (transType.equals("F") == true) {
+				if (iouLimitEntitySale.getOrgName().equals("downstream") == false) {
+					System.out.println("很抱歉,购买交易的对象错误");
+					return "998";
+				}
+			}else{
+				System.out.println("别闹，不存在此购买类型");
+			}
+		}
+		if(iouLimitEntityBuy.getOrgName().equals("downstream") == true ) {
+			if (transType.equals("U") == true) {
+				if (iouLimitEntitySale.getOrgName().equals("coreBussiness") == false ) {
+					System.out.println("很抱歉,购买交易的对象错误");
+					return "998";
+				}
+			}
+			if (transType.equals("F") == true) {
+				if (iouLimitEntitySale.getOrgName().equals("factory") == false) {
+					System.out.println("很抱歉,购买交易的对象错误");
+					return "998";
+				}
+			}else{
+				System.out.println("别闹，不存在此购买类型");
+			}
+		}
+		
+		if(iouLimitEntityBuy.getOrgName().equals("factory") == true  ) {
+			if (transType.equals("U") == true) {
+				if (iouLimitEntitySale.getOrgName().equals("upstream") == false ) {
+					System.out.println("很抱歉,购买交易的对象错误");
+					return "998";
+				}
+			}
+			else {
+				System.out.println("很抱歉你不能购买成品");
+			}
+		}
+
 		long amount=Integer.parseInt(map.get("amount"));
 //		String conFile=map.get("conFile");
 		
