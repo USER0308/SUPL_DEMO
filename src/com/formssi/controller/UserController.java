@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintWriter;
+import java.security.NoSuchAlgorithmException;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -52,7 +53,7 @@ import com.formssi.service.impl.IOUService;
 import com.sun.jmx.snmp.Timestamp;
 
 import utils.Utils;
-
+import utils.MoveFile;
 //import utils.MD5Util;
 //import utils.MySessionContext;
 //import utils.Token;
@@ -69,7 +70,7 @@ public class UserController {
 	@Autowired
 	private ITransactionService transactionService;
 	
-	private String basePath="E:/file/";  //合同存储的根目录
+	private String basePath="/home/user0308/Tmp/tmp/";  //合同存储的根目录
 	
 
 	@RequestMapping(value = "/login", produces = "application/json;charset=UTF-8")
@@ -131,7 +132,7 @@ public class UserController {
 		System.out.println(request.getParameter("username")+"   @@@@@");
 		return "666";
 	}
-	
+
 	@RequestMapping(value = "/upload", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String upload(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
@@ -139,14 +140,13 @@ public class UserController {
 		/* 上传文件到用户的临时存放区，并名为temContract，即basePath/orgID/temContract
 		 * 
 		 * */
-		
-		
+
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		//System.out.println(request.getParameter("username")+"   @@@@@");
 		//System.out.println("file : "+request.getParameter("file"));
 		session = request.getSession();
 		String orgID  = (String) session.getAttribute("orgID");
-		//String orgID = "user01";
+//		String orgID = "user01";
 		System.out.println("orgID: "+orgID);
 		
         //获取表单(POST)数据
@@ -175,8 +175,7 @@ public class UserController {
         }catch(Exception e){} 
         
         
-        
-        String temPath = basePath+"/"+orgID+"/";
+        String temPath = basePath+orgID;
         
         File f = new File(temPath);
         
@@ -184,7 +183,7 @@ public class UserController {
             f.mkdirs();//创建目录
         }
         
-		FileOutputStream fos = new FileOutputStream(temPath+"temContract");//保存文件
+		FileOutputStream fos = new FileOutputStream(temPath + "/" + "temContract");//保存文件
 		int len;
 		Byte[] b =new Byte[1024];
 		while((len=in.read())!=-1){//判读文件内容是否存在
@@ -192,11 +191,10 @@ public class UserController {
 			fos.write(len);//写入文件
 		}
 		in.close();
-		fos.close();
-
-		
+		fos.close();		
 		return "666";
 	}
+	
 	
 	@RequestMapping(value="/download/{con_id}")
     public ResponseEntity<byte[]> download(@PathVariable("con_id") String con_id, HttpServletRequest request,
@@ -207,9 +205,9 @@ public class UserController {
     	 * */
     	
     	
-    	String filename = "in.txt";
+    	String filename = con_id;
        //下载文件路径
-       String path = "/Users/mac/Desktop/SUPL_DEMO/WebContent/WEB-INF";
+       String path = basePath+"contract";
        File file = new File(path + File.separator + filename);
        HttpHeaders headers = new HttpHeaders();  
        //下载显示的文件名，解决中文名称乱码问题  
@@ -392,27 +390,46 @@ public class UserController {
 	
 	@RequestMapping(value = "/add_transaction", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String add_transaction(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) {
+	public String add_transaction(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) throws NoSuchAlgorithmException, IOException {
 		
 		/*
 		 * 添加交易时 要将用户临时存放区的文件移到basePath/contract下，并名为con_id
 		 * 然后计算合同hash
 		 * */
-		
-		
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		String saleOrg=map.get("saleOrg");
 		String buyOrg=map.get("buyOrg");
 		String transType=map.get("transType");
 		long amount=Integer.parseInt(map.get("amount"));
-		String conFile=map.get("conFile");
+//		String conFile=map.get("conFile");
 		
 		HttpSession session=request.getSession();
 		String orgID = (String) session.getAttribute("orgID");
 		
 		//添加交易操作
 		try {
-			transactionService.addTransactionRecord(saleOrg, buyOrg, transType, amount, "P");
+			// get conID,conHash
+			long now=System.currentTimeMillis();
+			String time = Utils.sdf(now);
+			
+			String conID = "conID"+time;
+			String filePath = basePath +buyOrg+"/" + "temContract";
+			String conHash = utils.Utils.getFileSHA256Str(filePath);
+			System.out.println("conID is:"+conID);
+			System.out.println("conHash is:"+conHash);
+			// move file
+			String destPath = basePath + "contract/";
+			String sourceFilePath = basePath + buyOrg +"/" + "temContract";
+			boolean isSuccess = MoveFile.removeFile(sourceFilePath,destPath,conID);
+			if(!isSuccess) {
+				System.out.println("移动合同文件失败");
+				JSONObject res=new JSONObject();
+				res.put("status", "0");
+				return res.toJSONString();
+			}
+			
+			transactionService.addTransactionRecord(saleOrg, buyOrg, transType, amount, "P",conID,conHash);
+			
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();

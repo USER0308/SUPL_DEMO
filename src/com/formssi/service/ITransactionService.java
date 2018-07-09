@@ -8,7 +8,7 @@ import com.formssi.entity.Transaction;
 
 
 public interface ITransactionService {
-	public boolean addTransactionRecord(String saleOrg,String buyOrg,String transType,long amount,String latestStatus)throws InterruptedException, ExecutionException;  // 录入交易
+	public boolean addTransactionRecord(String saleOrg,String buyOrg,String transType,long amount,String latestStatus,String conID,String conHash)throws InterruptedException, ExecutionException;  // 录入交易
 	
 	public boolean updateTransactionStatusByConId(@Param("conId")String conId,@Param("status")String status);  // 交易状态修改
 	

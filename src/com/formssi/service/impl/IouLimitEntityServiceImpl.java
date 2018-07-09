@@ -121,22 +121,22 @@ public class IouLimitEntityServiceImpl implements IIouLimitEntityService {
 		if(tmp == null) {
 			//不存在该机构
 			System.out.println("机构不存在");
-			return 1;
+			return -1;
 		}else {
 			String name = tmp.getOrgName();
 			if(name.equals(orgName)){
 				String passwd = tmp.getPassword();
 				if (Utils.getSHA256Str(password).equals(passwd)){
 					System.out.println("密码正确");
-					return 0;
+					return 1;
 				}
 				else {
 					System.out.println("密码错误");
-					return 2;
+					return 0;
 				}
 			}else {
 				System.out.println("机构类型不正确");
-				return 3;
+				return -2;
 			}	
 		}
 	}

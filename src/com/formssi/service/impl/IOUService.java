@@ -273,12 +273,12 @@ public class IOUService {
 		return result;
 	}
 	
-	public static String addTransaction(String saleOrg,String buyOrg,String transType,long amount,String latestStatus) throws InterruptedException, ExecutionException{
+	public static String addTransaction(String saleOrg,String buyOrg,String transType,long amount,String latestStatus,String conID,String conHash) throws InterruptedException, ExecutionException{
 		             // 合同hash
 	    long now=System.currentTimeMillis();
 		String transTime = Utils.sdf(now);
-		String conID="conID"+transTime;               // 合同号
-	    String conHash="conHash";
+//		String conID="conID"+transTime;               // 合同号
+//	    String conHash="conHash";
 //		Transaction transaction = new Transaction();
 //		transaction.setConID(conID);
 //		transaction.setSaleOrg(saleOrg);

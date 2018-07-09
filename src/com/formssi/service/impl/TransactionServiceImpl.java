@@ -29,18 +29,20 @@ public class TransactionServiceImpl implements ITransactionService {
 	
 	
 	@Override
-	public boolean addTransactionRecord(String saleOrg,String buyOrg,String transType,long amount,String latestStatus)throws InterruptedException, ExecutionException{  // 录入交易
+	public boolean addTransactionRecord(String saleOrg,String buyOrg,String transType,long amount,String latestStatus,String conID,String conHash)throws InterruptedException, ExecutionException{  // 录入交易
 		// TODO Auto-generated method stub
 		
 		long now=System.currentTimeMillis();
 		String transTime = Utils.sdf(now);
-		String conID="conID"+transTime;               // 合同号
-	    String conHash="conHash";
+//		String conID="conID"+transTime;               // 合同号
+//	    String conHash="conHash";
 		Transaction transaction = new Transaction();
 		transaction.setConID(conID);
 		transaction.setSaleOrg(saleOrg);
 		transaction.setBuyOrg(buyOrg);
 		transaction.setTransType(transType);
+		transaction.setConID(conID);
+		transaction.setConHash(conHash);
 		transaction.setAmount(amount);
 		transaction.setLatestStatus(latestStatus);
 		transaction.setConHash(conHash);
@@ -63,7 +65,7 @@ public class TransactionServiceImpl implements ITransactionService {
 			System.out.println("创建交易");
 			
 			
-			IOUService.addTransaction(saleOrg, buyOrg, transType, amount, latestStatus);
+			IOUService.addTransaction(saleOrg, buyOrg, transType, amount, latestStatus,conID,conHash);
 			
 			IouRecord iouRecord =new IouRecord();
 			iouRecord.setAmount((int)amount);
