@@ -76,7 +76,7 @@ public class UserController {
 	@RequestMapping(value = "/login", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String login(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) {
-		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+//		response.setHeader("Access-Control-Allow-Origin", "127.0.0.1:3000");//跨域访问
 		String orgID=map.get("orgID");
 		String orgName=map.get("orgName");
 		String password=map.get("password");
@@ -98,7 +98,7 @@ public class UserController {
 	@RequestMapping(value = "/register", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String register(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) throws Exception {
-		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+//		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		String orgID=map.get("orgID");
 		String orgName=map.get("orgName");
 		String password=map.get("password");
@@ -128,7 +128,7 @@ public class UserController {
 	@RequestMapping(value = "/test", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String test(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
-		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+//		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		System.out.println(request.getParameter("username")+"   @@@@@");
 		return "666";
 	}
@@ -141,7 +141,7 @@ public class UserController {
 		 * 
 		 * */
 
-		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+//		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		//System.out.println(request.getParameter("username")+"   @@@@@");
 		//System.out.println("file : "+request.getParameter("file"));
 		session = request.getSession();
@@ -220,12 +220,29 @@ public class UserController {
                headers, HttpStatus.CREATED);  
     }
 
-	
+    @RequestMapping(value = "/get_entity_iou_limit", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String get_entity_iou_limit(@RequestBody Map<String, String> map,HttpServletRequest request, HttpServletResponse response) {
+//		response.setHeader("Access-Control-Allow-Origin", "127.0.0.1:3000");//跨域访问
+		
+		HttpSession session=request.getSession();
+//		String orgID=(String) session.getAttribute("orgID");
+		String orgID=map.get("orgID");
+		System.out.println(orgID);
+		
+		//获取ioulist数目
+		int tem =iouLimitEntityService.getIouLimit(orgID);
+		
+		JSONObject res=new JSONObject();
+		res.put("iouLimit", tem);
+		res.put("orgID", orgID);
+		return res.toJSONString();
+	} 
 	
 	@RequestMapping(value = "/logout", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String logout(HttpServletRequest request, HttpServletResponse response) {
-		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+//		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		
 		HttpSession session=request.getSession();
 		session.invalidate();
@@ -238,7 +255,7 @@ public class UserController {
 	@RequestMapping(value = "/ioulist", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String ioulist(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) {
-		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+//		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		int pageNum=Integer.parseInt(map.get("pageNum"));
 		int pageSize=Integer.parseInt(map.get("pageSize"));
 		//String pageSize=request.getParameter("pageSize");
@@ -269,23 +286,25 @@ public class UserController {
 	@RequestMapping(value = "/get_ioulist_num", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String get_ioulist_num(HttpServletRequest request, HttpServletResponse response) {
-		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+//		response.setHeader("Access-Control-Allow-Origin", "127.0.0.1:3000");//跨域访问
 		
 		HttpSession session=request.getSession();
 		String orgID=(String) session.getAttribute("orgID");
+		System.out.println(orgID);
 		
 		//获取ioulist数目
 		int tem =iouRecordService.getAllIouRecord().size();
 		
 		JSONObject res=new JSONObject();
 		res.put("amount", tem);
+		res.put("orgID", orgID);
 		return res.toJSONString();
 	}
 	
 	@RequestMapping(value = "/recycle_iou", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String recycle_iou(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) {
-		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+//		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		String iouId=request.getParameter("iouId");
 		//String amount=request.getParameter("amount");
 		int amount=Integer.parseInt(map.get("amount"));
@@ -310,11 +329,12 @@ public class UserController {
 	@RequestMapping(value = "/update_iou_limit", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String update_iou_limit(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) {
-		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+//		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		int amount=Integer.parseInt(map.get("amount"));
 		
 		HttpSession session=request.getSession();
-		String orgID = (String) session.getAttribute("orgID");
+//		String orgID = (String) session.getAttribute("orgID");
+		String orgID = map.get("orgID");
 		
 		//更新白条额度操作
 		String transTime = Utils.sdf(System.currentTimeMillis());
@@ -343,7 +363,7 @@ public class UserController {
 	@RequestMapping(value = "/transactionlist", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String transactionlist(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) {
-		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+//		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		int pageNum=Integer.parseInt(map.get("pageNum"));
 		int pageSize=Integer.parseInt(map.get("pageSize"));
 		
@@ -375,7 +395,7 @@ public class UserController {
 	@RequestMapping(value = "/get_transaction_num", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String get_transaction_num(HttpServletRequest request, HttpServletResponse response) {
-		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+//		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		
 		HttpSession session=request.getSession();
 		String orgID=(String) session.getAttribute("orgID");
@@ -396,7 +416,7 @@ public class UserController {
 		 * 添加交易时 要将用户临时存放区的文件移到basePath/contract下，并名为con_id
 		 * 然后计算合同hash
 		 * */
-		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+//		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		String saleOrg=map.get("saleOrg");
 		String buyOrg=map.get("buyOrg");
 		String transType=map.get("transType");
@@ -414,7 +434,7 @@ public class UserController {
 			System.out.println("很抱歉你不能发起购买交易");
 			return "998";
 		}
-		if(iouLimitEntityBuy.getOrgName().equals("coreBussiness") == true) {
+		if(iouLimitEntityBuy.getOrgName().equals("core") == true) {
 			if (transType.equals("U") == true) {
 				if (iouLimitEntitySale.getOrgName().equals("upstream") == false) {
 					System.out.println("很抱歉,购买交易的对象错误");
@@ -432,7 +452,7 @@ public class UserController {
 		}
 		if(iouLimitEntityBuy.getOrgName().equals("downstream") == true ) {
 			if (transType.equals("U") == true) {
-				if (iouLimitEntitySale.getOrgName().equals("coreBussiness") == false ) {
+				if (iouLimitEntitySale.getOrgName().equals("core") == false ) {
 					System.out.println("很抱歉,购买交易的对象错误");
 					return "998";
 				}
@@ -505,7 +525,7 @@ public class UserController {
 	@RequestMapping(value = "/get_transaction/{con_id}", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String get_transaction(@PathVariable("con_id") String con_id, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
-		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+//		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		System.out.println("Product Id  ff : " + con_id); 
 		
 		//根据合同获得交易信息
@@ -538,7 +558,7 @@ public class UserController {
 	@RequestMapping(value = "/product/{productId}", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String test(@PathVariable("productId") String productId, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
-		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+//		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		System.out.println("Product Id  ff : " + productId); 
 		JSONObject zz=new JSONObject();
 		zz.put("zzz", "xxxx");
