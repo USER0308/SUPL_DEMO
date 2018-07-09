@@ -14,5 +14,5 @@ public interface IIouLimitEntityService {
 	
 	public boolean recycleIou(String iouId,int amount)throws InterruptedException, ExecutionException;  // 回收白条
 
-	public boolean checkPasswordByOrgID(String password,String orgID);//检查password
+	public int checkPasswordByorgID(String password,String orgID,String Name);//检查password
 }

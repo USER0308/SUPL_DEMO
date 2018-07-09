@@ -116,17 +116,30 @@ public class IouLimitEntityServiceImpl implements IIouLimitEntityService {
 	}
 
 	@Override
-	public boolean checkPasswordByOrgID(String password, String orgID) {
-		// TODO Auto-generated method stub
-		String passwd = iiouLimitEntityDao.checkPassword(orgID);
-		if (passwd.equals(password)){
-			System.out.println("密码正确");
-			return true;
-		}
-		else {
-			System.out.println("密码错误");
-			return false;
+	public int checkPasswordByorgID(String password,String orgID,String Name) {
+		IouLimitEntity tmp = iiouLimitEntityDao.queryIouLimitEntityByOrgID(orgID);
+		if(tmp == null) {
+			//不存在该机构
+			System.out.println("机构不存在");
+			return 1;
+		}else {
+			String N = iiouLimitEntityDao.checkName(orgID);
+			if(N == Name){
+				String P = iiouLimitEntityDao.checkPassword(orgID);
+				if (P==password){
+					System.out.println("密码正确");
+					return 0;
+				}
+				else {
+					System.out.println("密码错误");
+					return 2;
+				}
+			}else {
+				System.out.println("机构类型不正确");
+				return 3;
+			}	
 		}
 	}
+
 
 }

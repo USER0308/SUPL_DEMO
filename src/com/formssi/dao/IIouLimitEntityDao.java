@@ -13,6 +13,8 @@ public interface IIouLimitEntityDao {
 	public Integer getIouLimitByOrgID(@Param(value="orgID")String orgID);
 	public void updateIouLimitByOrgID(@Param(value="iouLimit")int iouLimit, @Param(value="updateTime")String updateTime, @Param(value="orgID")String orgID);  // 更新机构的白条额度
 	public IouLimitEntity queryIouLimitEntityByOrgID(@Param(value="orgID")String orgID);  // 通过orgID查询机构
+
+	public String checkName(@Param(value="orgID")String orgID);//通过ID查询机构类型
 	public String checkPassword(@Param(value="orgID")String orgID);//检查密码是否正确
 }
 

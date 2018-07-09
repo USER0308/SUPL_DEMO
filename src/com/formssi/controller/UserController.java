@@ -19,8 +19,14 @@ import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -74,17 +80,17 @@ public class UserController {
 		String orgName=map.get("orgName");
 		String password=map.get("password");
 		
-		//登录操作
-		boolean isSuccess=iouLimitEntityService.checkPasswordByOrgID(password, orgID);
+		//登录操作checkPasswordByorgID
+		int isSuccess=iouLimitEntityService.checkPasswordByorgID(password, orgID, orgName);
 		
 		JSONObject res=new JSONObject();
-		if(isSuccess) {
+		if(isSuccess==1) {
 			res.put("status", "1");
 			HttpSession session=request.getSession();
 			session.setAttribute("orgID", orgID);
 		}
 		else 
-			res.put("status", "0");
+			res.put("status", isSuccess);
 		return res.toJSONString();
 	}
 
@@ -129,12 +135,18 @@ public class UserController {
 	@RequestMapping(value = "/upload", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String upload(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
+		
+		/* 上传文件到用户的临时存放区，并名为temContract，即basePath/orgID/temContract
+		 * 
+		 * */
+		
+		
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		//System.out.println(request.getParameter("username")+"   @@@@@");
 		//System.out.println("file : "+request.getParameter("file"));
 		session = request.getSession();
-		//String orgID  = (String) session.getAttribute("orgID");
-		String orgID = "user01";
+		String orgID  = (String) session.getAttribute("orgID");
+		//String orgID = "user01";
 		System.out.println("orgID: "+orgID);
 		
         //获取表单(POST)数据
@@ -172,7 +184,7 @@ public class UserController {
             f.mkdirs();//创建目录
         }
         
-		FileOutputStream fos = new FileOutputStream(temPath+"out.txt");//保存文件
+		FileOutputStream fos = new FileOutputStream(temPath+"temContract");//保存文件
 		int len;
 		Byte[] b =new Byte[1024];
 		while((len=in.read())!=-1){//判读文件内容是否存在
@@ -185,6 +197,31 @@ public class UserController {
 		
 		return "666";
 	}
+	
+	@RequestMapping(value="/download/{con_id}")
+    public ResponseEntity<byte[]> download(@PathVariable("con_id") String con_id, HttpServletRequest request,
+            Model model)throws Exception {
+    	
+    	/* 下载basePath/contract下的con_id文件
+    	 * 
+    	 * */
+    	
+    	
+    	String filename = "in.txt";
+       //下载文件路径
+       String path = "/Users/mac/Desktop/SUPL_DEMO/WebContent/WEB-INF";
+       File file = new File(path + File.separator + filename);
+       HttpHeaders headers = new HttpHeaders();  
+       //下载显示的文件名，解决中文名称乱码问题  
+       String downloadFielName = new String(filename.getBytes("UTF-8"),"iso-8859-1");
+       //通知浏览器以attachment（下载方式）打开图片
+       headers.setContentDispositionFormData("attachment", downloadFielName); 
+       //application/octet-stream ： 二进制流数据（最常见的文件下载）。
+       headers.setContentType(MediaType.APPLICATION_OCTET_STREAM);
+       return new ResponseEntity<byte[]>(FileUtils.readFileToByteArray(file),    
+               headers, HttpStatus.CREATED);  
+    }
+
 	
 	
 	@RequestMapping(value = "/logout", produces = "application/json;charset=UTF-8")
@@ -356,6 +393,13 @@ public class UserController {
 	@RequestMapping(value = "/add_transaction", produces = "application/json;charset=UTF-8")
 	@ResponseBody
 	public String add_transaction(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) {
+		
+		/*
+		 * 添加交易时 要将用户临时存放区的文件移到basePath/contract下，并名为con_id
+		 * 然后计算合同hash
+		 * */
+		
+		
 		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		String saleOrg=map.get("saleOrg");
 		String buyOrg=map.get("buyOrg");
