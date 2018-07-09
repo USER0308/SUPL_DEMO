@@ -95,7 +95,7 @@ public class IouLimitEntityServiceImpl implements IIouLimitEntityService {
 			IouLimitEntity iouLimitEntity = new IouLimitEntity();
 			iouLimitEntity.setOrgID(orgID);
 			iouLimitEntity.setOrgName(orgName);
-			iouLimitEntity.setPassword(password);
+			iouLimitEntity.setPassword(Utils.getSHA256Str(password));
 			iouLimitEntity.setIouLimit(iouLimit);
 			long now=System.currentTimeMillis();
 			String time = Utils.sdf(now);
@@ -116,17 +116,17 @@ public class IouLimitEntityServiceImpl implements IIouLimitEntityService {
 	}
 
 	@Override
-	public int checkPasswordByorgID(String password,String orgID,String Name) {
+	public int checkPasswordByorgID(String password,String orgID,String orgName) {
 		IouLimitEntity tmp = iiouLimitEntityDao.queryIouLimitEntityByOrgID(orgID);
 		if(tmp == null) {
 			//不存在该机构
 			System.out.println("机构不存在");
 			return 1;
 		}else {
-			String N = iiouLimitEntityDao.checkName(orgID);
-			if(N == Name){
-				String P = iiouLimitEntityDao.checkPassword(orgID);
-				if (P==password){
+			String name = tmp.getOrgName();
+			if(name.equals(orgName)){
+				String passwd = tmp.getPassword();
+				if (Utils.getSHA256Str(password).equals(passwd)){
 					System.out.println("密码正确");
 					return 0;
 				}
