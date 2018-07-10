@@ -321,6 +321,7 @@ public class IOUService {
 //			System.out.println("更新交易出错");
 //			return -1;
 //		}
+		System.out.println("更新交易 IOUStatus:"+status);
 		//更新区块链
 		if(!TRAN_LATESTSTATE_LIST.contains(status)) {
 			logger.info("the value of IOU Status must be C or U.");
@@ -333,18 +334,18 @@ public class IOUService {
 		return result;
 	}
 	
-	public static Transaction queryTransactionByConId(String conId) throws InterruptedException, ExecutionException{
+	public static Utf8String queryTransactionByConId(String conId) throws InterruptedException, ExecutionException{
 		// 直接从后端数据库查询
-		Transaction transaction = transactionServiceImpl.getTransactionByConId(conId);
+//		Transaction transaction = transactionServiceImpl.getTransactionByConId(conId);
 //		if(transaction==null) {
 //			// 不存在该交易的话返回null	
 //		}
 		// transaction to json
-		return transaction;
+//		return transaction;
 		//应该删掉以下的代码
-//		Future<Utf8String> result = contractTransaction.queryTransByConId(new Utf8String(conId));
-//		logger.info("queryTransaction result is:{}",result.get());
-//		return result.get();
+		Future<Utf8String> result = contractTransaction.queryTransByConId(new Utf8String(conId));
+		logger.info("queryTransaction result is:{}",result.get());
+		return result.get();
 	}
 	
 	public static List<Transaction> queryTransList(int pageNo,int pageSize) throws InterruptedException, ExecutionException {

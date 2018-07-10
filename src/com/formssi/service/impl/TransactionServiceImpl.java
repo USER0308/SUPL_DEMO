@@ -108,7 +108,7 @@ public class TransactionServiceImpl implements ITransactionService {
 			long now=System.currentTimeMillis();
 			String updateTime = Utils.sdf(now);
 			tmp.setUpdateTime(updateTime);
-			
+			itransactionDao.updateTransactionStatusByConID(conId, status, updateTime);
 			try {
 				IOUService.updateTransStatus(conId, status);
 			} catch (InterruptedException e) {

@@ -68,10 +68,11 @@ public class IouLimitEntityServiceImpl implements IIouLimitEntityService {
 		}
 		long now=System.currentTimeMillis();
 		String updateTime = Utils.sdf(now);
-		fromOrg.setIouLimit(fromOrgLimit-amount);
+		fromOrg.setIouLimit(fromOrgLimit+amount);
 		fromOrg.setUpdateTime(updateTime);
-		recvOrg.setIouLimit(recvOrgLimit+amount);
-		recvOrg.setUpdateTime(updateTime);
+//		recvOrg.setIouLimit(recvOrgLimit-amount);
+//		recvOrg.setUpdateTime(updateTime);
+		iiouLimitEntityDao.updateIouLimitEntity(fromOrg);
 		//修改白条交易记录的已还金额
 		iouRecord.setPaidAmt(iouRecord.getPaidAmt()+amount);
 		//修改还清状态
@@ -79,6 +80,7 @@ public class IouLimitEntityServiceImpl implements IIouLimitEntityService {
 			iouRecord.setIouStatus("C");
 		}
 		iouRecord.setUpdateTime(updateTime);
+		iiouRecordDao.updateIouRecord(iouRecord);
 		IOUService.iouRecycle(iouId, amount);
 		return true;
 	}

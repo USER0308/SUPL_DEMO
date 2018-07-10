@@ -10,7 +10,7 @@
     </insert>
     
     <update id="updateTransactionStatusByConID" >
-    	UPDATE `transaction` SET `lastestStatus`='${status}' WHERE `conID`='${conID}';
+    	UPDATE `transaction` SET `lastestStatus`='${status}',`updateTime`='${updateTime}' WHERE `conID`='${conID}';
     </update>
     
     <select id="getTransactionByConID" parameterType="java.lang.String" resultType="com.formssi.entity.Transaction">

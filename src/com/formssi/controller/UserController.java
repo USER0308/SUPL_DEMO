@@ -21,6 +21,7 @@ import org.apache.commons.fileupload.FileUploadException;
 import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.apache.commons.io.FileUtils;
+import org.bcos.web3j.abi.datatypes.Utf8String;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -130,6 +131,10 @@ public class UserController {
 	public String test(HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 //		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		System.out.println(request.getParameter("username")+"   @@@@@");
+		session = request.getSession();
+		String orgID  = (String) session.getAttribute("orgID");
+//		
+		System.out.println("orgID is " + orgID);
 		return "666";
 	}
 
@@ -176,7 +181,7 @@ public class UserController {
         
         
         String temPath = basePath+orgID;
-        
+        System.out.println("上传文件的文件夹位置为 "+temPath);
         File f = new File(temPath);
         
         if(!f.exists()){
@@ -191,7 +196,8 @@ public class UserController {
 			fos.write(len);//写入文件
 		}
 		in.close();
-		fos.close();		
+		fos.close();	
+		System.out.println("上传文件成功");
 		return "666";
 	}
 	
@@ -226,8 +232,10 @@ public class UserController {
 //		response.setHeader("Access-Control-Allow-Origin", "127.0.0.1:3000");//跨域访问
 		
 		HttpSession session=request.getSession();
-//		String orgID=(String) session.getAttribute("orgID");
-		String orgID=map.get("orgID");
+		String orgID=(String) session.getAttribute("orgID");
+		if(orgID==null) {
+			orgID=map.get("orgID");
+		}
 		System.out.println(orgID);
 		
 		//获取ioulist数目
@@ -254,17 +262,17 @@ public class UserController {
 	
 	@RequestMapping(value = "/ioulist", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String ioulist(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) {
+	public String ioulist(HttpServletRequest request, HttpServletResponse response) {
 //		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
-		int pageNum=Integer.parseInt(map.get("pageNum"));
-		int pageSize=Integer.parseInt(map.get("pageSize"));
+//		int pageNum=Integer.parseInt(map.get("pageNum"));
+//		int pageSize=Integer.parseInt(map.get("pageSize"));
 		//String pageSize=request.getParameter("pageSize");
 		
 		HttpSession session=request.getSession();
 		String orgID=(String) session.getAttribute("orgID");
 		
 		//获取iou列表操作
-		List<IouRecord> tem = iouRecordService.getIouRecordList(pageNum, pageSize);
+		List<IouRecord> tem = iouRecordService.getAllIouRecord();
 		
 		JSONArray res=new JSONArray();
 		for (int i=0;i<tem.size();i++) {
@@ -305,10 +313,11 @@ public class UserController {
 	@ResponseBody
 	public String recycle_iou(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) {
 //		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
-		String iouId=request.getParameter("iouId");
+		String iouId=map.get("iouId");
 		//String amount=request.getParameter("amount");
 		int amount=Integer.parseInt(map.get("amount"));
-		
+		System.out.println("iouId is "+iouId);
+		System.out.println("amount is "+amount);
 		//HttpSession session=request.getSession();
 		//String orgID = (String) session.getAttribute("orgID");
 		try {
@@ -333,9 +342,10 @@ public class UserController {
 		int amount=Integer.parseInt(map.get("amount"));
 		
 		HttpSession session=request.getSession();
-//		String orgID = (String) session.getAttribute("orgID");
-		String orgID = map.get("orgID");
-		
+		String orgID = (String) session.getAttribute("orgID");
+		if(orgID==null) {
+			orgID = map.get("orgID");
+		}
 		//更新白条额度操作
 		String transTime = Utils.sdf(System.currentTimeMillis());
 		boolean isSuccess=false;
@@ -362,16 +372,16 @@ public class UserController {
 	
 	@RequestMapping(value = "/transactionlist", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String transactionlist(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) {
+	public String transactionlist( HttpServletRequest request, HttpServletResponse response) {
 //		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
-		int pageNum=Integer.parseInt(map.get("pageNum"));
-		int pageSize=Integer.parseInt(map.get("pageSize"));
+//		int pageNum=Integer.parseInt(map.get("pageNum"));
+//		int pageSize=Integer.parseInt(map.get("pageSize"));
 		
 		HttpSession session=request.getSession();
 		String orgID=(String) session.getAttribute("orgID");
 		
 		//交易列表操作
-		List<Transaction> tem = transactionService.queryTransaction(pageNum, pageSize);//(pageNum, pageSize);
+		List<Transaction> tem = transactionService.getAllTransaction();
 		
 		JSONArray res=new JSONArray();
 		for (int i=0;i<tem.size();i++) {
@@ -446,8 +456,6 @@ public class UserController {
 					System.out.println("很抱歉,购买交易的对象错误");
 					return "998";
 				}
-			}else{
-				System.out.println("别闹，不存在此购买类型");
 			}
 		}
 		if(iouLimitEntityBuy.getOrgName().equals("downstream") == true ) {
@@ -462,8 +470,6 @@ public class UserController {
 					System.out.println("很抱歉,购买交易的对象错误");
 					return "998";
 				}
-			}else{
-				System.out.println("别闹，不存在此购买类型");
 			}
 		}
 		
@@ -490,6 +496,26 @@ public class UserController {
 			// get conID,conHash
 			long now=System.currentTimeMillis();
 			String time = Utils.sdf(now);
+			
+			String folderUrl = basePath+buyOrg;
+			System.out.println("folder is "+folderUrl);
+	        File destFloder = new File(folderUrl);
+	        //检查目标路径是否合法
+	        if(destFloder.exists())
+	        {
+	            if(destFloder.isFile())
+	            {
+	            	System.out.println("目标路径是个文件，请检查目标路径！");
+	                return "404";
+	            }
+	        }else
+	        {
+	            if(!destFloder.mkdirs())
+	            {
+	            	System.out.println("目标文件夹不存在，创建失败！");
+	                return "404";
+	            }
+	        }
 			
 			String conID = "conID"+time;
 			String filePath = basePath +buyOrg+"/" + "temContract";
@@ -527,12 +553,17 @@ public class UserController {
 	public String get_transaction(@PathVariable("con_id") String con_id, HttpServletRequest request, HttpServletResponse response, HttpSession session) {
 //		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
 		System.out.println("Product Id  ff : " + con_id); 
-		
+		JSONObject res=new JSONObject();
 		//根据合同获得交易信息
 		Transaction tran = transactionService.getTransactionByConId(con_id);
+		if(tran==null) {
+			//不存在该交易
+			res.put("status", "0");
+			res.put("message", "不存在该交易");
+			return res.toJSONString();
+		}
 		
 		
-		JSONObject res=new JSONObject();
 		res.put("conID", tran.getConID());
 		res.put("saleOrg", tran.getSaleOrg());
 		res.put("buyOrg", tran.getBuyOrg());
@@ -547,6 +578,64 @@ public class UserController {
 		return res.toJSONString();
 	}
 	
+	@RequestMapping(value = "/checkConId/{con_ID}", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String checkConID(HttpServletRequest request, HttpServletResponse response,@PathVariable String con_ID) {
+//		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+		HttpSession session=request.getSession();
+		String orgID=(String) session.getAttribute("orgID");
+		System.out.println("orgID 在文件校验中是:"+orgID);
+		String filePath = basePath +orgID +"/" + "temContract";
+		System.out.println("filePath 是:"+filePath);
+		JSONObject zz=new JSONObject();
+		try {
+			String conHash = utils.Utils.getFileSHA256Str(filePath);
+			System.out.println("计算出来的文件哈系是:"+conHash);
+			Utf8String J_Transaction = IOUService.queryTransactionByConId(con_ID);
+			String Str = J_Transaction.toString();
+			JSONObject jsonObject1=JSON.parseObject(Str);
+			String conHash_block = jsonObject1.getString("conHash");
+			System.out.println("从区块链上读取出来的文件哈系是:"+conHash_block);
+			if (conHash_block.equals(conHash) ==true) {
+				System.out.println("合同哈希匹配成功");
+				return zz.put("status", "1").toString();
+			}else {
+				System.out.println("合同哈希匹配不成功");
+				return zz.put("status", "0").toString();
+			}
+		} catch (NoSuchAlgorithmException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (ExecutionException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return "0";
+	}
+
+	@RequestMapping(value = "/update_trans_status", produces = "application/json;charset=UTF-8")
+	@ResponseBody
+	public String update_transaction_status(@RequestBody Map<String, String> map, HttpServletRequest request, HttpServletResponse response) {
+//		response.setHeader("Access-Control-Allow-Origin", "*");//跨域访问
+		String conId = map.get("conID");
+		//更新交易状态操作
+		String transTime = Utils.sdf(System.currentTimeMillis());
+		boolean isSuccess = transactionService.updateTransactionStatusByConId(conId, "C");
+		
+		JSONObject res=new JSONObject();
+		if(isSuccess)
+			res.put("status", "1");
+		else 
+			res.put("status", "0");
+		return res.toJSONString();
+		
+	}
 //	@RequestMapping(value="/product/{productId}", produces = "application/json;charset=UTF-8") 
 //	public String getProduct(@PathVariable("productId") String productId, HttpServletResponse response, HttpSession session){ 
 //	    System.out.println("Product Id : " + productId); 

@@ -13,6 +13,11 @@
 		UPDATE `iouRecord` SET `iouStatus`='${iouStatus}' WHERE `iouId`='${iouId}';
     </update>
     
+    <update id="updateIouRecord" parameterType="com.formssi.entity.IouRecord">
+		UPDATE `iouRecord` SET `iouStatus`='${iouRecord.iouStatus}',`paidAmt`='${iouRecord.paidAmt}',`updateTime`='${iouRecord.updateTime}' WHERE `iouId`='${iouId}';
+    </update>
+    
+    
     <select id="queryIouRecordByIouId" resultType="com.formssi.entity.IouRecord" parameterType="java.lang.String">
         <!-- 具体的sql -->
         SELECT * FROM `iouRecord` WHERE `iouId`='${iouId}';

@@ -7,7 +7,7 @@ public class IouRecord {
     private String transTime;           // 交易时间
     private int amount;                 // 交易金额
     private int paidAmt;                // 已还金额
-    private String iouStatus;           // 白条状态 --C,已还清--P,未还清
+    private String iouStatus;           // 白条状态 --C,已还清--U,未还清
     private String updateTime;          // 更新时间
     
     // getter methods
