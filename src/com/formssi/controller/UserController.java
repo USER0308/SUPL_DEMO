@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -137,10 +138,27 @@ public class UserController {
 		System.out.println("orgID is " + orgID);
 		return "666";
 	}
+	
+	/*
+     * 采用file.Transto 来保存上传的文件
+     */
+    @RequestMapping("/fileUpload")
+    public String  fileUpload(@RequestParam("file") CommonsMultipartFile file) throws IOException {
+         long  startTime=System.currentTimeMillis();
+        System.out.println("fileName："+file.getOriginalFilename());
+        String path="E:/"+file.getOriginalFilename();
+         
+        File newFile=new File(path);
+        //通过CommonsMultipartFile的方法直接写文件（注意这个时候）
+        file.transferTo(newFile);
+        long  endTime=System.currentTimeMillis();
+        System.out.println("方法二的运行时间："+String.valueOf(endTime-startTime)+"ms");
+        return "/success"; 
+    }
 
 	@RequestMapping(value = "/upload", produces = "application/json;charset=UTF-8")
 	@ResponseBody
-	public String upload(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
+	public String upload(@RequestParam("file") CommonsMultipartFile file,HttpServletRequest request, HttpServletResponse response, HttpSession session) throws IOException {
 		
 		/* 上传文件到用户的临时存放区，并名为temContract，即basePath/orgID/temContract
 		 * 
@@ -154,32 +172,6 @@ public class UserController {
 //		String orgID = "user01";
 		System.out.println("orgID: "+orgID);
 		
-        //获取表单(POST)数据
-        ServletInputStream in = request.getInputStream();//此方法得到所有的提交信息，不仅仅只有内容
-        //转换流
-        InputStreamReader inReaser = new InputStreamReader(in);
-        //缓冲流
-        BufferedReader reader = new BufferedReader(inReaser);
-        String str = null;
-//        System.out.println(in.read());
-//        System.out.println("##@!@#@@");
-//        while ((str=reader.readLine()) != null){
-//            System.out.println(str);
-//        }
-        System.out.println("    #######");
-        
-        
-		//FileInputStream fis = new FileInputStream("src\\File\\Outfile.java");//读取文件
-        
-        File directory = new File("");//设定为当前文件夹 
-        try{ 
-            System.out.println(directory.getCanonicalPath());//获取标准的路径 
-            System.out.println(directory.getAbsolutePath());//获取绝对路径
-            System.out.println(directory.getPath());//获取绝对路径
-            
-        }catch(Exception e){} 
-        
-        
         String temPath = basePath+orgID;
         System.out.println("上传文件的文件夹位置为 "+temPath);
         File f = new File(temPath);
@@ -187,16 +179,12 @@ public class UserController {
         if(!f.exists()){
             f.mkdirs();//创建目录
         }
-        
-		FileOutputStream fos = new FileOutputStream(temPath + "/" + "temContract");//保存文件
-		int len;
-		Byte[] b =new Byte[1024];
-		while((len=in.read())!=-1){//判读文件内容是否存在
-			//System.out.print((char)len);//打印文件
-			fos.write(len);//写入文件
-		}
-		in.close();
-		fos.close();	
+		
+		String path=temPath+"/temContract";
+        File newFile=new File(path);
+        //通过CommonsMultipartFile的方法直接写文件（注意这个时候）
+        file.transferTo(newFile);
+		
 		System.out.println("上传文件成功");
 		return "666";
 	}
