@@ -146,7 +146,7 @@ public class UserController {
     public String  fileUpload(@RequestParam("file") CommonsMultipartFile file) throws IOException {
          long  startTime=System.currentTimeMillis();
         System.out.println("fileName："+file.getOriginalFilename());
-        String path="E:/"+file.getOriginalFilename();
+        String path=basePath+file.getOriginalFilename();
          
         File newFile=new File(path);
         //通过CommonsMultipartFile的方法直接写文件（注意这个时候）
@@ -378,14 +378,15 @@ public class UserController {
 			xxx.put("saleOrg", tem.get(i).getSaleOrg());
 			xxx.put("buyOrg", tem.get(i).getBuyOrg());
 			xxx.put("transType", tem.get(i).getTransType());
-			xxx.put("transTime", tem.get(i).getTransTime());
+			xxx.put("latestStatus", tem.get(i).getLatestStatus());
 			xxx.put("updateTime", tem.get(i).getUpdateTime());
 			xxx.put("amount", tem.get(i).getAmount());
 			xxx.put("conHash", tem.get(i).getConHash());
-			xxx.put("latestStatus", tem.get(i).getLatestStatus());
-			
+//			xxx.put("transTime", tem.get(i).getTransTime());
 			
 			res.add(xxx);
+			System.out.println("list xxx is "+xxx.toJSONString());
+			System.out.println("status xxx is "+tem.get(i).getLatestStatus());
 		}
 		return res.toJSONString();
 	}
@@ -420,29 +421,40 @@ public class UserController {
 		String transType=map.get("transType");
 		IouLimitEntity iouLimitEntityBuy = iouLimitEntityService.getIouLimitEntityByConId(buyOrg);
 		IouLimitEntity iouLimitEntitySale = iouLimitEntityService.getIouLimitEntityByConId(saleOrg);
+		JSONObject res=new JSONObject();
 		if (iouLimitEntitySale == null) {
 			System.out.println("出售方交易账号输入错误");
-			return "998";
+			res.put("status", "0");
+			res.put("message","出售方交易账号输入错误" );
+			return res.toJSONString();
 		}
 		if (iouLimitEntityBuy == null) {
 			System.out.println("购买方交易账号输入错误");
-			return "998";
+			res.put("status", "0");
+			res.put("message","购买方交易账号输入错误" );
+			return res.toJSONString();
 		}
 		if(iouLimitEntityBuy.getOrgName().equals("upstream") == true) {
 			System.out.println("很抱歉你不能发起购买交易");
-			return "998";
+			res.put("status", "0");
+			res.put("message","很抱歉你不能发起购买交易" );
+			return res.toJSONString();
 		}
 		if(iouLimitEntityBuy.getOrgName().equals("core") == true) {
 			if (transType.equals("U") == true) {
 				if (iouLimitEntitySale.getOrgName().equals("upstream") == false) {
 					System.out.println("很抱歉,购买交易的对象错误");
-					return "998";
+					res.put("status", "0");
+					res.put("message","很抱歉,购买交易的对象错误" );
+					return res.toJSONString();
 				}
 			}
 			if (transType.equals("F") == true) {
 				if (iouLimitEntitySale.getOrgName().equals("downstream") == false) {
 					System.out.println("很抱歉,购买交易的对象错误");
-					return "998";
+					res.put("status", "0");
+					res.put("message","很抱歉,购买交易的对象错误" );
+					return res.toJSONString();
 				}
 			}
 		}
@@ -450,26 +462,35 @@ public class UserController {
 			if (transType.equals("U") == true) {
 				if (iouLimitEntitySale.getOrgName().equals("core") == false ) {
 					System.out.println("很抱歉,购买交易的对象错误");
-					return "998";
+					res.put("status", "0");
+					res.put("message","很抱歉,购买交易的对象错误" );
+					return res.toJSONString();
 				}
 			}
 			if (transType.equals("F") == true) {
 				if (iouLimitEntitySale.getOrgName().equals("factory") == false) {
 					System.out.println("很抱歉,购买交易的对象错误");
-					return "998";
+					res.put("status", "0");
+					res.put("message","很抱歉,购买交易的对象错误" );
+					return res.toJSONString();
 				}
 			}
 		}
 		
 		if(iouLimitEntityBuy.getOrgName().equals("factory") == true  ) {
 			if (transType.equals("U") == true) {
-				if (iouLimitEntitySale.getOrgName().equals("upstream") == false ) {
+				if (iouLimitEntitySale.getOrgName().equals("downstream") == false ) {
 					System.out.println("很抱歉,购买交易的对象错误");
-					return "998";
+					res.put("status", "0");
+					res.put("message","很抱歉,购买交易的对象错误" );
+					return res.toJSONString();
 				}
 			}
 			else {
 				System.out.println("很抱歉你不能购买成品");
+				res.put("status", "0");
+				res.put("message","很抱歉你不能购买成品" );
+				return res.toJSONString();
 			}
 		}
 
@@ -485,7 +506,7 @@ public class UserController {
 			long now=System.currentTimeMillis();
 			String time = Utils.sdf(now);
 			
-			String folderUrl = basePath+buyOrg;
+			String folderUrl = basePath+orgID;
 			System.out.println("folder is "+folderUrl);
 	        File destFloder = new File(folderUrl);
 	        //检查目标路径是否合法
@@ -506,19 +527,19 @@ public class UserController {
 	        }
 			
 			String conID = "conID"+time;
-			String filePath = basePath +buyOrg+"/" + "temContract";
+			String filePath = basePath +orgID+"/" + "temContract";
 			String conHash = utils.Utils.getFileSHA256Str(filePath);
 			System.out.println("conID is:"+conID);
 			System.out.println("conHash is:"+conHash);
 			// move file
 			String destPath = basePath + "contract/";
-			String sourceFilePath = basePath + buyOrg +"/" + "temContract";
+			String sourceFilePath = basePath + orgID +"/" + "temContract";
 			boolean isSuccess = MoveFile.removeFile(sourceFilePath,destPath,conID);
 			if(!isSuccess) {
 				System.out.println("移动合同文件失败");
-				JSONObject res=new JSONObject();
-				res.put("status", "0");
-				return res.toJSONString();
+				JSONObject res2=new JSONObject();
+				res2.put("status", "0");
+				return res2.toJSONString();
 			}
 			
 			transactionService.addTransactionRecord(saleOrg, buyOrg, transType, amount, "P",conID,conHash);
@@ -531,9 +552,9 @@ public class UserController {
 			e.printStackTrace();
 		}
 		
-		JSONObject res=new JSONObject();
-		res.put("status", "1");
-		return res.toJSONString();
+		JSONObject res3=new JSONObject();
+		res3.put("status", "1");
+		return res3.toJSONString();
 	}
 	
 	@RequestMapping(value = "/get_transaction/{con_id}", produces = "application/json;charset=UTF-8")
@@ -586,10 +607,12 @@ public class UserController {
 			System.out.println("从区块链上读取出来的文件哈系是:"+conHash_block);
 			if (conHash_block.equals(conHash) ==true) {
 				System.out.println("合同哈希匹配成功");
-				return zz.put("status", "1").toString();
+				zz.put("status", "1");
+				return zz.toJSONString();
 			}else {
 				System.out.println("合同哈希匹配不成功");
-				return zz.put("status", "0").toString();
+				zz.put("status", "0");
+				return zz.toJSONString();
 			}
 		} catch (NoSuchAlgorithmException e) {
 			// TODO Auto-generated catch block
@@ -604,7 +627,8 @@ public class UserController {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return "0";
+		zz.put("status", "0");
+		return zz.toJSONString();
 	}
 
 	@RequestMapping(value = "/update_trans_status", produces = "application/json;charset=UTF-8")

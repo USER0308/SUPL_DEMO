@@ -6,11 +6,12 @@
     <!-- 目的：为dao接口方法提供sql语句配置 -->
     <insert id="addTransaction" parameterType="com.formssi.entity.Transaction">
         <!-- 具体的sql -->
-        INSERT INTO `transaction` (`conID`, `saleOrg`, `buyOrg`, `transType`, `amount`, `conHash`, `lastestStatus`, `transTime`, `updateTime`) VALUES ('${transaction.conID}','${transaction.saleOrg}','${transaction.buyOrg}','${transaction.transType}',${transaction.amount},'${transaction.conHash}','${transaction.latestStatus}','${transaction.transTime}','${transaction.updateTime}');
+        <!-- INSERT INTO `transaction` (`conID`, `saleOrg`, `buyOrg`, `transType`, `amount`, `conHash`, `lastestStatus`, `transTime`, `updateTime`) VALUES ('${transaction.conID}','${transaction.saleOrg}','${transaction.buyOrg}','${transaction.transType}',${transaction.amount},'${transaction.conHash}','${transaction.latestStatus}','${transaction.transTime}','${transaction.updateTime}');-->
+        INSERT INTO `transaction` (`conID`, `saleOrg`, `buyOrg`, `transType`, `amount`, `conHash`, `latestStatus`, `transTime`, `updateTime`) VALUES ('${transaction.conID}','${transaction.saleOrg}','${transaction.buyOrg}','${transaction.transType}',${transaction.amount},'${transaction.conHash}','${transaction.latestStatus}','${transaction.transTime}','${transaction.updateTime}');
     </insert>
     
     <update id="updateTransactionStatusByConID" >
-    	UPDATE `transaction` SET `lastestStatus`='${status}',`updateTime`='${updateTime}' WHERE `conID`='${conID}';
+    	UPDATE `transaction` SET `latestStatus`='${status}',`updateTime`='${updateTime}' WHERE `conID`='${conID}';
     </update>
     
     <select id="getTransactionByConID" parameterType="java.lang.String" resultType="com.formssi.entity.Transaction">
